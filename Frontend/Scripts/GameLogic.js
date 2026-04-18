@@ -14,18 +14,18 @@ const B_RELIC_DECK = 3
 // Objects
 // =======
 const playerState = {
-  gold: B_GOLD,
-  food: B_FOOD,
-  merchandise: [],
-  consumables: [],
-  abilities: [],
-  decisionHistory: [],
-  daysToNextTown: 0,
-  encountersRemaining: 0,
-  decks: {
-    merchandise: B_MERCH_DECK,
-    consumables: B_CONS_DECK,
-    relics: B_RELIC_DECK
-  }
+    gold: B_GOLD,
+    food: B_FOOD,
+    merchandise: [],
+    consumables: [],
+    abilities: [],
+    decisionHistory: [],
+    daysToNextTown: 0,
+    encountersRemaining: 0,
+    decks: {
+        merchandise: B_MERCH_DECK,
+        consumables: B_CONS_DECK,
+        relics: B_RELIC_DECK
+    }
 }
 
