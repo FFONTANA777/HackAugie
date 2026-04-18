@@ -99,11 +99,6 @@ const gameObject = {
         // TODO
     },
 
-    // Checkpoint mutations
-    payEntryFee() {
-        // TODO
-    },
-
     // Encounter queue
     generateEncounterQueue() {
         //TODO
