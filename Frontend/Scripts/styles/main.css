@@ -1,0 +1,48 @@
+@font-face {
+  font-family: 'Silkscreen';
+  src: url('/fonts/slkscr.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #1a1209;
+  color: #f0e6c8;
+  font-family: Georgia, serif;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #0d0a05;
+  border-bottom: 2px solid #6b4f2a;
+  font-family: 'Silkscreen', serif;
+  font-size: 14px;
+}
+
+.hud-left, .hud-center, .hud-right {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.hud-item {
+  color: #f0e6c8;
+}
