@@ -5,10 +5,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Travelling Merchant</title>
-  <link rel="stylesheet" href="/src/styles/main.css" />
+  <link rel="stylesheet" href="/Frontend/Scripts/styles/main.css" />
 </head>
 <body>
   <div id="app"></div>
-  <script type="module" src="/src/pages/mainMenu.js"></script>
+
+  <script type="module">
+    import renderHUD from '/Frontend/Scripts/components/hud.js'
+    import GameLogic from '/Frontend/Scripts/gameLogic/GameLogic.js'
+
+    const app = document.getElementById('app')
+    app.appendChild(renderHUD())
+
+    // test that subscribe works
+    setTimeout(() => {
+      GameLogic.update({ money: 999, day: 2 })
+    }, 2000)
+  </script>
 </body>
 </html>

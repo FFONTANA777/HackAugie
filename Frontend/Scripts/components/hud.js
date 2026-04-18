@@ -1,5 +1,4 @@
-// components/HUD.js
-import GameLogic from '../store/GameLogic.js'
+import GameLogic from '../GameLogic/GameLogic.js'
 
 function renderHUD() {
   const hud = document.createElement('div')
