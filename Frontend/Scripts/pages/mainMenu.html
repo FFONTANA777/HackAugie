@@ -102,25 +102,21 @@
   </audio>
 
   <script type="module">
-    import GameLogic from '/Frontend/Scripts/gamelogic/GameLogic.js'
+    import gameObject from '/Frontend/Scripts/gameLogic/GameLogic.js'
 
     const music = document.getElementById('bg-music')
-
-    // browsers require a user interaction before playing audio
-    // so we play on the first click anywhere on the page
     document.addEventListener('click', () => {
-      music.play()
+    music.play()
     }, { once: true })
 
-    // load highscore
     const saved = localStorage.getItem('highscore')
     if (saved) {
-      document.getElementById('highscore-display').textContent = saved
+    document.getElementById('highscore-display').textContent = saved
     }
 
     window.startGame = function () {
-      music.pause()
-      window.location.href = '/Frontend/Pages/gameBoard.html'
+    music.pause()
+    window.location.href = '/Frontend/Pages/gameBoard.html'
     }
   </script>
 
