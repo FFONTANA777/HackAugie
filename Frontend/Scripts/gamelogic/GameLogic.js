@@ -86,10 +86,6 @@ const gameObject = {
         this.player.consumables = this.player.consumables.filter(c => c.id !== cardId)
         this._notify()
     },
-    logDecision(decision) {
-        this.player.decisionHistory.push(decision)
-        this._notify()
-    },
 
     // Phase transitions
     startLeg() {
