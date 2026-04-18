@@ -46,7 +46,7 @@ const gameObject = {
 
     // Observer
     _listeners: [],
-        subscribe(fn) {
+    subscribe(fn) {
         this._listeners.push(fn)
     },
     _notify() {
