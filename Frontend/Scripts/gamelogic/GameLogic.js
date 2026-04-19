@@ -31,7 +31,7 @@ const FOOD_OFFERS = {
 // If UPGRADE_COSTS[type][currentSize] is undefined, deck is maxed.
 export const DECK_MAX = {
     merchandise: 10,
-    consumables: 6,
+    consumables: 5,
     relics: 5
 }
 
@@ -265,9 +265,15 @@ const gameObject = {
         const current = this.player.decks[deckType]
         const max = DECK_MAX[deckType]
         const costs = UPGRADE_COSTS[deckType]
-        const costIndex = current - (deckType === 'merchandise' ? 6 : deckType === 'consumables' ? 3 : 3)
+        
+        // FIX: The base for consumables/relics is 2, not 3.
+        const base = (deckType === 'merchandise') ? 6 : 2
+        const costIndex = current - base
+        
         const cost = costs[costIndex]
-        if (!cost || current >= max || this.player.gold < cost) return
+        
+        if (cost === undefined || current >= max || this.player.gold < cost) return
+        
         this.player.gold -= cost
         this.player.decks[deckType] += 1
         if (this.gameState.currentCheckpoint) {
