@@ -31,7 +31,7 @@ const FOOD_OFFERS = {
 // If UPGRADE_COSTS[type][currentSize] is undefined, deck is maxed.
 export const DECK_MAX = {
     merchandise: 10,
-    consumables: 6,
+    consumables: 5,
     relics: 5
 }
 
