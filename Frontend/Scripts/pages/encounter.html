@@ -256,6 +256,8 @@
 
   <script type="module">
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
+    import { ENCOUNTERS } from '/Frontend/Scripts/gamelogic/Encounters.js'
+    import { handleEncounter } from '/Frontend/Scripts/gamelogic/EncounterHandler.js'
 
     // ============
     // Music
@@ -338,104 +340,15 @@
     gameObject.subscribe(() => { if (inventoryOpen) renderInventory() })
 
     // ============
-    // Encounters
-    // ============
-    const ENCOUNTERS = {
-      bandit: {
-        type: 'AMBUSH',
-        typeClass: 'danger',
-        icon: '⚔️',
-        title: 'Bandits on the Road',
-        desc: 'A group of armed bandits steps out from the treeline, blocking your path. They eye your wagon greedily.',
-        bg: '/Frontend/public/backgrounds/bandit.png',
-        choices: [
-          {
-            label: 'A',
-            text: 'Pay them off — hand over 30 gold to pass safely.',
-            outcome: {
-              type: 'bad',
-              title: 'Toll Paid',
-              desc: 'You hand over the gold. They let you pass without further trouble.',
-              apply: () => gameObject.spendGold(30)
-            }
-          },
-          {
-            label: 'B',
-            text: 'Try to outrun them — risky, but keeps your gold.',
-            outcome: {
-              type: Math.random() > 0.5 ? 'good' : 'bad',
-              title: Math.random() > 0.5 ? 'Escaped!' : 'Caught!',
-              desc: Math.random() > 0.5
-                ? 'Your horse is fast. You leave the bandits in the dust.'
-                : 'They catch up and rough you up, stealing 50 gold and some food.',
-              apply: () => {
-                if (Math.random() > 0.5) return
-                gameObject.spendGold(50)
-                gameObject.spendFood(3)
-              }
-            }
-          },
-          {
-            label: 'C',
-            text: 'Talk your way out — use your merchant charm.',
-            outcome: {
-              type: 'good',
-              title: 'Silver Tongue',
-              desc: 'You spin a tale of poverty and plague. The bandits leave you alone, oddly convinced.',
-              apply: () => {}
-            }
-          },
-        ]
-      },
-
-      river: {
-        type: 'HAZARD',
-        typeClass: 'water',
-        icon: '🌊',
-        title: 'Flooded River Crossing',
-        desc: 'The river ahead has burst its banks after recent rains. The crossing looks treacherous.',
-        bg: '/Frontend/public/background/background_river.png',
-        choices: [
-          {
-            label: 'A',
-            text: 'Ford the river — push through and hope for the best.',
-            outcome: {
-              type: 'bad',
-              title: 'Rough Crossing',
-              desc: 'You make it across but the cold water soaks your supplies. You lose 4 food.',
-              apply: () => gameObject.spendFood(4)
-            }
-          },
-          {
-            label: 'B',
-            text: 'Find a safer crossing upstream — costs extra time and food.',
-            outcome: {
-              type: 'bad',
-              title: 'Long Detour',
-              desc: 'The detour takes hours. You cross safely but burn through 2 food.',
-              apply: () => gameObject.spendFood(2)
-            }
-          },
-          {
-            label: 'C',
-            text: 'Pay a local ferryman 20 gold to take you across.',
-            outcome: {
-              type: 'good',
-              title: 'Safe Passage',
-              desc: 'The ferryman knows every current. You cross without losing anything.',
-              apply: () => gameObject.spendGold(20)
-            }
-          },
-        ]
-      }
-    }
-
-    // ============
     // Pick & Render Encounter
     // ============
-    const keys       = Object.keys(ENCOUNTERS)
-    const randomKey  = keys[Math.floor(Math.random() * keys.length)]
-    const encounter  = ENCOUNTERS[randomKey]
+    const currentEncounterId = gameObject.gameState.currentLeg.eventQueue[0]
+    const encounter = ENCOUNTERS[currentEncounterId]
+
+    // debug check
+    console.log('queue:', gameObject.gameState.currentLeg.eventQueue)
+    console.log('currentEncounterId:', currentEncounterId)
+    console.log('encounter:', encounter)
 
     // set background
     document.getElementById('encounter-bg').style.backgroundImage =
@@ -443,27 +356,23 @@
 
     // populate card
     const encType = document.getElementById('enc-type')
-    encType.textContent = encounter.type
-    encType.className   = `encounter-type ${encounter.typeClass}`
-    document.getElementById('enc-icon').textContent  = encounter.icon
+    encType.textContent = encounter.displayType ?? ''
+    encType.className   = `encounter-type ${encounter.typeClass ?? ''}`
+    document.getElementById('enc-icon').textContent  = encounter.icon ?? ''
     document.getElementById('enc-title').textContent = encounter.title
-    document.getElementById('enc-desc').textContent  = encounter.desc
+    document.getElementById('enc-desc').textContent  = encounter.description
 
-    // render choices
     const choicesEl = document.getElementById('enc-choices')
-    encounter.choices.forEach(choice => {
+
+    encounter.options.forEach((option, index) => {
       const btn = document.createElement('button')
       btn.className = 'choice-btn'
-      btn.innerHTML = `<span class="choice-label">${choice.label}.</span>${choice.text}`
-      btn.addEventListener('click', () => resolveChoice(choice, btn))
+      btn.innerHTML = `<span class="choice-label">${String.fromCharCode(65 + index)}.</span>${option.label}`
+      btn.addEventListener('click', () => resolveChoice(option, index, btn))
       choicesEl.appendChild(btn)
     })
 
-    // ============
-    // Resolve Choice
-    // ============
-    function resolveChoice(choice, btn) {
-      // lock all buttons
+    function resolveChoice(option, index, btn) {
       document.querySelectorAll('.choice-btn').forEach(b => {
         b.style.pointerEvents = 'none'
         b.style.opacity = '0.4'
@@ -471,34 +380,23 @@
       btn.style.opacity = '1'
       btn.style.borderColor = '#c8963c'
 
-      // evaluate outcome (re-roll random outcomes)
-      const isBadRun = Math.random() > 0.5
-      let outcome = choice.outcome
+      const result = handleEncounter(currentEncounterId, index, gameObject)
 
-      // for choices with dynamic outcomes recalculate here
-      if (randomKey === 'bandit' && choice.label === 'B') {
-        outcome = isBadRun
-          ? { type: 'bad',  title: 'Caught!',   desc: 'They catch up and steal 50 gold and some food.', apply: () => { gameObject.spendGold(50); gameObject.spendFood(3) } }
-          : { type: 'good', title: 'Escaped!',  desc: 'Your horse is fast. You leave the bandits behind.', apply: () => {} }
-      }
-
-      // apply effect
-      outcome.apply()
-      updateHUD()
-
-      // show outcome
       const box = document.getElementById('enc-outcome')
-      box.className = `outcome-box visible ${outcome.type}`
-      document.getElementById('outcome-title').textContent = outcome.title
-      document.getElementById('outcome-desc').textContent  = outcome.desc
+      box.className = `outcome-box visible`
+      document.getElementById('outcome-title').textContent = 'Outcome'
+      document.getElementById('outcome-desc').textContent = result.description
     }
 
     // ============
     // Continue
     // ============
     window.continueJourney = function () {
-      window.location.href = '/Frontend/Scripts/pages/encounter.html'
-      // later: check if next stop is town → redirect to checkpoint.html
+      if (gameObject.gameState.phase === 'checkpoint') {
+        window.location.href = '/Frontend/Scripts/pages/checkpoint.html'
+      } else {
+        window.location.href = '/Frontend/Scripts/pages/encounter.html'
+      }
     }
 
   </script>

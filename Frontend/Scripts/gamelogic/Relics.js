@@ -10,13 +10,13 @@ export const RELICS = {
     merchant_scales: {
         id: "merchant_scales",
         name: "Merchant's Scales",
-        description: "Sell all merchandise for 10% more gold.",
+        description: "Sell all merchandise for 20 more gold.",
         effect: "sell_bonus_all"
     },
     empty_pockets: {
         id: "empty_pockets",
         name: "Empty Pockets",
-        description: "While you have less than 20 gold, shop prices are reduced by 30%.",
+        description: "While you have less than 20 gold, shop prices are reduced by 10.",
         effect: "broke_discount"
     },
     coin_purse: {
@@ -48,7 +48,7 @@ export const RELICS = {
     bad_omen: {
         id: "bad_omen",
         name: "Bad Omen",
-        description: "All shop prices increased by 25%.",
+        description: "All shop prices increased by 25.",
         effect: "curse_inflation",
         cursed: true
     },

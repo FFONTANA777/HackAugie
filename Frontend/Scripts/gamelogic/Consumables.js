@@ -111,6 +111,14 @@ export const CONSUMABLES = {
         baseValue: 40,
         description: "Scare off bandits for the rest of this leg, or burn through a tree hazard.",
         effect: ["bandit_leg_immunity", "clear_tree"]
+    },
+    torch: {
+        id: "torch",
+        type: "consumable",
+        name: "Torch",
+        baseValue: 20,
+        description: "Frighten off pursuers with fire, or light your way through a dark hazard.",
+        effect: ["fire_escape", "illuminate_path"]
     }
 }
 
@@ -144,7 +152,7 @@ export const STARTER_ITEMS = {
         type: "consumable",
         source: "starter",
         name: "Back to Basics",
-        description: "Wagon cannot be upgraded. All sell prices permanently increased.",
+        description: "Wagon cannot be upgraded. All sell prices permanently increased by 15%.",
         effect: "no_upgrades_bonus"
     },
     crocea_mors: {

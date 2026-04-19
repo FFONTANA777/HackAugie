@@ -248,6 +248,7 @@
     import { CARDS } from '/Frontend/Scripts/gamelogic/Cards.js'
     import { STARTER_ITEMS } from '/Frontend/Scripts/gamelogic/Consumables.js'
     import { RELICS } from '/Frontend/Scripts/gamelogic/Relics.js'
+    import { initGame } from '/Frontend/Scripts/gamelogic/GameLogic.js'
     // Inventory
     let inventoryOpen = false
     let activeTab = 'merchandise'
@@ -431,14 +432,12 @@
       checkConfirm()
     }
 
-    window.confirmSelection = function () {
-      if (!selectedItem || !selectedRelic) return
-      gameObject.addConsumable(selectedItem.id)
-      gameObject.addRelic(selectedRelic.id)
-      window.location.href = '/Frontend/Scripts/pages/encounter.html'
-    }
-
     // init
+    window.confirmSelection = function () {
+        if (!selectedItem || !selectedRelic) return
+        initGame(selectedRelic.id, selectedItem.id)
+        window.location.href = '/Frontend/Scripts/pages/encounter.html'
+    }
     renderAll()
   </script>
 
