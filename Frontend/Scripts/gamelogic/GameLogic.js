@@ -20,7 +20,7 @@ const gameObject = {
         food: B_FOOD,
         merchandise: [],
         consumables: [],
-        abilities: [],
+        relic: [],
         decks: {
             merchandise: B_MERCH_DECK,
             consumables: B_CONS_DECK,
@@ -38,7 +38,7 @@ const gameObject = {
         currentCheckpoint: {
             shopInventory: {
                 consumables: [],
-                abilities: []
+                relic: []
             },
             pathOptions: []
         },
@@ -75,7 +75,8 @@ const gameObject = {
         this._notify()
     },
     removeMerchandise(cardId) {
-        this.player.merchandise = this.player.merchandise.filter(c => c.id !== cardId)
+        const idx = this.player.merchandise.findIndex(c => c.id === cardId)
+        if (idx !== -1) this.player.merchandise.splice(idx, 1)
         this._notify()
     },
     addConsumable(cardId) {
@@ -83,7 +84,8 @@ const gameObject = {
         this._notify()
     },
     useConsumable(cardId) {
-        this.player.consumables = this.player.consumables.filter(c => c.id !== cardId)
+        const idx = this.player.consumables.findIndex(c => c.id === cardId)
+        if (idx !== -1) this.player.consumables.splice(idx, 1)
         this._notify()
     },
 
@@ -105,14 +107,9 @@ const gameObject = {
         // placeholder — Conductor will eventually drive this
         return {
             consumables: [],
-            abilities: []
+            relic: []
         }
     },
-
-    // Conductor payload
-    buildConductorPayload() {
-        // TODO
-    }
 }
 
 export default gameObject
