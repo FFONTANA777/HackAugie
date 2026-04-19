@@ -109,13 +109,18 @@ export const ENCOUNTERS = {
                 ]
             },
             {
-                condition: { type: "default" },
-                result: {
-                    description: "You make camp and wait. By morning the river has calmed. You cross safely but a day is lost.",
-                    effects: [
-                        { type: "lose_food", value: 2 }
-                    ]
-                }
+                label: "Wait out the hazard.",
+                outcomes: [
+                    {
+                        condition: { type: "default" },
+                        result: {
+                            description: "You make camp and wait. By morning the river has calmed. You cross safely but a day is lost.",
+                            effects: [
+                                { type: "lose_food", value: 2 }
+                            ]
+                        }
+                    }
+                ]
             }
         ]
     }
