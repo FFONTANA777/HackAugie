@@ -175,6 +175,10 @@ const gameObject = {
         if (!slot || slot.sold) return
         if (this.player.gold < slot.displayPrice) return  // can't afford
 
+        // one purchase per shop visit — bail if anything has been bought here already
+        const anyAlreadySold = this.gameState.currentCheckpoint.shopInventory.some(s => s.sold)
+        if (anyAlreadySold) return
+
         if (slot.type === "food") {
             this.spendGold(slot.displayPrice)
             this.gainFood(slot.amount)
