@@ -26,19 +26,11 @@ export const ENCOUNTERS = {
         id: "bandits",
         type: "decision",
         displayType: "AMBUSH",
-<<<<<<< HEAD
-        typeClass: "danger",
-        icon: "⚔️",
-        bg: "/Frontend/public/background/bandit.png",
-        title: "Survival of the Fittest",
-        description: "The sound of snapping twigs precedes a cold realization: you aren't alone on the pass. Rough-looking men emerge from the treeline, their eyes lingering greedily on your heavy crates. They don't want your life—just your livelihood.",
-=======
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
         title: "TODO",
         description: "TODO",
->>>>>>> e511798436a7fde57331ea362370c3854a9cc6db
         options: [
             {
                 label: "Make a run for it.",
