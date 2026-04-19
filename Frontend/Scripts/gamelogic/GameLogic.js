@@ -9,8 +9,8 @@ import { ENCOUNTERS } from './Encounters.js'
 const B_GOLD = 80
 const B_FOOD = 15
 const B_MERCH_DECK = 6
-const B_CONS_DECK = 3
-const B_RELIC_DECK = 3
+const B_CONS_DECK = 2
+const B_RELIC_DECK = 2
 const B_LEGS = 5
 const SAVE_VERSION = 1
 
