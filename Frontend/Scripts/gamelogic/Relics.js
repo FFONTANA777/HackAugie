@@ -22,14 +22,14 @@ export const RELICS = {
     coin_purse: {
         id: "coin_purse",
         name: "Coin Purse",
-        description: "Every merchandise set you sell grants +10 bonus gold.",
-        effect: "sell_set_bonus"
+        description: "Every 3rd merchandise card you sell grants +5 bonus gold.",
+        effect: "sell_streak_bonus"
     },
     friends: {
         id: "friends",
         name: "Friends",
         description: "Town shop items will be discounted by 5 gold",
-        effect: "sell_set_bonus"
+        effect: "shop_discount"
     },
     gamblers_luck: {
         id: "gamblers_luck",
