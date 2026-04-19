@@ -449,11 +449,7 @@
 
   <script type="module">
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
-<<<<<<< HEAD
-    import { getBuyPrice, getSellValue, generateShopInventoryRandom, CONSUMABLES } from '/Frontend/Scripts/gamelogic/GameLogic.js'
-=======
     import { getSellValue, getUpgradeCost, getDeckMax, CONSUMABLES, CARDS } from '/Frontend/Scripts/gamelogic/GameLogic.js'
->>>>>>> e511798436a7fde57331ea362370c3854a9cc6db
 
     // ============
     // Music
@@ -641,26 +637,6 @@
       showFeedback(`+${amount} ${stat} purchased`)
     }
 
-<<<<<<< HEAD
-    // ============
-    // Shop — Consumables (from GameLogic)
-    // ============
-    const SHOP_CONSUMABLES = []
-
-    async function loadShopConsumables() {
-      // Generate shop inventory from GameLogic
-      const shopSlots = generateShopInventoryRandom()
-      shopSlots.forEach(slot => {
-        if (slot.type === 'consumable') {
-          const cons = CONSUMABLES[slot.id]
-          SHOP_CONSUMABLES.push({
-            icon: cons.icon ?? '🧪',
-            name: cons.name,
-            id: cons.id,
-            desc: cons.description,
-            price: getBuyPrice(cons.baseValue, gameObject)
-          })
-=======
       // New rule: food is unlimited. One consumable OR one merchandise per visit.
       // Lock only applies to non-food slots.
       const nonFoodLocked = shopInventory.some(s => s.sold && s.type !== 'food')
@@ -691,19 +667,9 @@
           icon = card?.icon ?? '📦'
           name = `${slot.name} (${slot.rarity})`
           desc = card?.description ?? ''
->>>>>>> e511798436a7fde57331ea362370c3854a9cc6db
         }
       })
-    }
 
-<<<<<<< HEAD
-    function renderShopConsumables() {
-      const grid = document.getElementById('consumable-shop')
-      grid.innerHTML = ''
-      SHOP_CONSUMABLES.forEach(item => {
-        const isFull = gameObject.player.consumables.length >= gameObject.player.decks.consumables
-        const canAfford = gameObject.player.gold >= item.price
-=======
         let btnLabel = 'BUY'
         let disabled = false
         if (slot.type === 'food') {
@@ -716,7 +682,6 @@
           else if (!canAfford)        { disabled = true }
         }
 
->>>>>>> e511798436a7fde57331ea362370c3854a9cc6db
         const div = document.createElement('div')
         div.className = 'shop-item'
         div.innerHTML = `
@@ -730,8 +695,6 @@
           </button>
         `
         grid.appendChild(div)
-      })
-    }
 
     window.buyConsumable = function (id, name, price, btn) {
       if (gameObject.player.gold < price) { showFeedback('not enough gold!', true); return }
@@ -853,12 +816,8 @@
     // ============
     gameObject.subscribe(() => {
       renderMerchSell()
-<<<<<<< HEAD
-      renderShopConsumables()
-=======
       renderShop()
       renderUpgrades()
->>>>>>> e511798436a7fde57331ea362370c3854a9cc6db
     })
 
     // ============
@@ -866,12 +825,8 @@
     // ============
     loadShopConsumables()
     renderRoutes()
-<<<<<<< HEAD
-    renderShopConsumables()
-=======
     renderShop()
     renderUpgrades()
->>>>>>> e511798436a7fde57331ea362370c3854a9cc6db
     renderMerchSell()
 
   </script>
