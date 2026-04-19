@@ -464,9 +464,9 @@
     }
 
     // init
-    window.confirmSelection = function () {
+    window.confirmSelection = async function () {
         if (!selectedItem || !selectedRelic) return
-        initGame(selectedRelic.id, selectedItem.id)
+        await initGame(selectedRelic.id, selectedItem.id)
         window.location.href = '/Frontend/Scripts/pages/encounter.html'
     }
     renderAll()

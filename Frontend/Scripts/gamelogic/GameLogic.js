@@ -303,8 +303,10 @@ const gameObject = {
         const longDensity   = getEventDensity("long")
 
         let shopInventory
+        const candidates = generateShopInventoryRandom()
+        console.log("starting fetch, candidates:", candidates)
         try {
-            const candidates = generateShopInventoryRandom()
+            console.log("candidates sent:", candidates)
             const res = await fetch("http://localhost:8000/reward", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -332,11 +334,9 @@ const gameObject = {
                 displayPrice: getBuyPrice(slot.price, this)
             }))
         } catch (err) {
-            console.error("Conductor /reward failed, falling back to random:", err)
-            shopInventory = generateShopInventoryRandom().map(slot => ({
-                ...slot,
-                displayPrice: getBuyPrice(slot.price, this)
-            }))
+            console.error("Conductor /path failed on initGame, falling back to random:", err)
+            console.log("fallback queue:", rawQueue)
+            eventQueue = rawQueue
         }
 
         this.gameState.currentCheckpoint = {
@@ -363,44 +363,50 @@ const gameObject = {
         this.spendFood(pathOption.cost)
 
         const rawQueue = generateEncounterQueue(pathOption.eventDensity)
-        // Map queue strings to candidate objects with IDs for the conductor
         const candidates = rawQueue.map((encounterId, i) => ({
             id: `${encounterId}_${i}`,
             encounter_id: encounterId,
-            position_hint: i   // original random position — conductor can use or ignore
+            position_hint: i
         }))
 
-        const res = await fetch("http://localhost:8000/path", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                player: {
-                    gold: this.player.gold,
-                    food: this.player.food,
-                    merchandise: this.player.merchandise,
-                    consumables: this.player.consumables,
-                    relics: this.player.relic,
-                    buffs: this.player.buffs,
-                    debuffs: this.player.debuffs,
-                    decks: this.player.decks,
-                    sell_count: this.player.sellCount,
-                    towns_visited: this.player.townsVisited,
-                    chosen_set: this.player.chosenSet,
-                    decision_history: this.player.decisionHistory
-                },
-                game_state: {
-                    legs_remaining: this.gameState.legsRemaining,
-                    current_leg: this.gameState.currentLeg
-                },
-                path_type: pathOption.type,
-                candidates: candidates
+        let eventQueue
+        try {
+            const res = await fetch("http://localhost:8000/path", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    player: {
+                        gold: this.player.gold,
+                        food: this.player.food,
+                        merchandise: this.player.merchandise,
+                        consumables: this.player.consumables,
+                        relics: this.player.relic,
+                        buffs: this.player.buffs,
+                        debuffs: this.player.debuffs,
+                        decks: this.player.decks,
+                        sell_count: this.player.sellCount,
+                        towns_visited: this.player.townsVisited,
+                        chosen_set: this.player.chosenSet,
+                        decision_history: this.player.decisionHistory
+                    },
+                    game_state: {
+                        legs_remaining: this.gameState.legsRemaining,
+                        current_leg: this.gameState.currentLeg
+                    },
+                    path_type: pathOption.type,
+                    candidates: candidates
+                })
             })
-        })
-        const { ranked } = await res.json()
+            const { ranked } = await res.json()
+            eventQueue = ranked.map(c => c.encounter_id)
+        } catch (err) {
+            console.error("Conductor /path failed, falling back to random:", err)
+            eventQueue = rawQueue
+        }
 
         this.gameState.phase = "travelling"
         this.gameState.currentLeg.daysToNextTown = pathOption.eventDensity
-        this.gameState.currentLeg.eventQueue = ranked.map(c => c.encounter_id)
+        this.gameState.currentLeg.eventQueue = eventQueue
         this.gameState.currentCheckpoint = null
 
         this._notify()
@@ -543,7 +549,7 @@ export function getEventDensity(pathType) {
 export async function initGame(selectedRelic, selectedConsumable) {
     sessionStorage.removeItem('gameState')
 
-    // reset to base state
+    // reset to base state FIRST — before anything else
     gameObject.player.gold = B_GOLD
     gameObject.player.food = B_FOOD
     gameObject.player.merchandise = []
@@ -556,6 +562,12 @@ export async function initGame(selectedRelic, selectedConsumable) {
     gameObject.player.townsVisited = 0
     gameObject.player.chosenSet = null
     gameObject.gameState.legsRemaining = B_LEGS
+    gameObject.gameState.phase = "travelling"
+    gameObject.gameState.currentCheckpoint = null
+    gameObject.gameState.currentLeg = {       // explicit reset
+        daysToNextTown: -1,
+        eventQueue: []
+    }
     gameObject.player.decks = {
         merchandise: B_MERCH_DECK,
         consumables: B_CONS_DECK,
@@ -572,7 +584,7 @@ export async function initGame(selectedRelic, selectedConsumable) {
     gameObject.addRelic(selectedRelic)
     gameObject.addConsumable(selectedConsumable)
 
-    // start on a medium path, travel cost waived
+    // build first leg
     const eventDensity = getEventDensity("medium")
     const rawQueue = generateEncounterQueue(eventDensity)
     const candidates = rawQueue.map((encounterId, i) => ({
@@ -581,6 +593,7 @@ export async function initGame(selectedRelic, selectedConsumable) {
         position_hint: i
     }))
 
+    let eventQueue
     try {
         const res = await fetch("http://localhost:8000/path", {
             method: "POST",
@@ -609,15 +622,17 @@ export async function initGame(selectedRelic, selectedConsumable) {
             })
         })
         const { ranked } = await res.json()
-        gameObject.gameState.currentLeg.eventQueue = ranked.map(c => c.encounter_id)
+        console.log("raw response ranked:", ranked)
+        console.log("mapped queue:", ranked.map(c => c.encounter_id))
+        eventQueue = ranked.map(c => c.encounter_id)
     } catch (err) {
         console.error("Conductor /path failed on initGame, falling back to random:", err)
-        gameObject.gameState.currentLeg.eventQueue = rawQueue
+        eventQueue = rawQueue
     }
 
-    gameObject.gameState.phase = "travelling"
+    // set final leg state all at once before notifying
     gameObject.gameState.currentLeg.daysToNextTown = eventDensity
-    gameObject.gameState.currentCheckpoint = null
+    gameObject.gameState.currentLeg.eventQueue = eventQueue
 
     gameObject._notify()
 }
