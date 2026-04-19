@@ -6,17 +6,17 @@ import { ENCOUNTERS } from './Encounters.js'
 // =======
 // Configs
 // =======
-const B_GOLD = 10000
-const B_FOOD = 10
+const B_GOLD = 80
+const B_FOOD = 15
 const B_MERCH_DECK = 6
 const B_CONS_DECK = 3
 const B_RELIC_DECK = 3
 const B_LEGS = 5
 
 const PATH_CONFIGS = {
-    short:  { min: 2, max: 3 },
-    medium: { min: 4, max: 5 },
-    long:   { min: 6, max: 7 }
+    short:  { min: 4, max: 6 },
+    medium: { min: 7, max: 9 },
+    long:   { min: 10, max: 12 }
 }
 
 const FOOD_OFFERS = {
@@ -304,7 +304,7 @@ export function generateEncounterQueue(eventDensity) {
 export function calculatePathCost(eventDensity, gameObject) {
     const buffs = gameObject.player.buffs.reduce((sum, b) => sum + b.value, 0)
     const debuffs = gameObject.player.debuffs.reduce((sum, d) => sum + d.value, 0)
-    return (2 * eventDensity) + buffs - debuffs
+    return  Math.floor(eventDensity / 2) + buffs - debuffs
 }
 
 export function getEventDensity(pathType) {
