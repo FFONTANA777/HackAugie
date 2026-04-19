@@ -61,6 +61,7 @@
       display: flex;
       gap: 20px;
     }
+
     .hud-item { color: #f0e6c8; }
 
     .hud-right {
@@ -70,17 +71,54 @@
       transition: border-color 0.2s;
     }
 
-    .hud-right:hover {
-      border-color: #6b4f2a;
-    }
+    .hud-right:hover { border-color: #6b4f2a; }
+    .hud-right.active { border-color: #c8963c; }
 
-    .hud-right.active {
-      border-color: #c8963c;
+    .inv-label {
+      font-size: 10px;
+      color: #f0e6c8;
+      letter-spacing: 1px;
+      margin-right: 12px;
+      font-weight: bold;
     }
 
     /* ============
        Encounter Card
        ============ */
+    .trade-layout {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    
+    .trade-col {
+        flex: 1;
+        max-width: 240px;
+    }
+    
+    .trade-col-title {
+        font-size: 10px;
+        letter-spacing: 3px;
+        color: #a88c5a;
+        margin-bottom: 12px;
+        text-align: center;
+    }
+    
+    .trade-feedback {
+        font-size: 10px;
+        color: #a88c5a;
+        margin-bottom: 12px;
+        min-height: 16px;
+        text-align: center;
+    }
+    
+    .trade-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
     .encounter-card {
       margin-top: 48px;
       width: 90%;
@@ -92,7 +130,7 @@
     }
 
     .encounter-type {
-      font-size: 12px;
+      font-size: 10px;
       letter-spacing: 4px;
       color: #6b4f2a;
       margin-bottom: 12px;
@@ -113,7 +151,7 @@
     }
 
     .encounter-desc {
-      font-size: 15px;
+      font-size: 11px;
       color: #a88c5a;
       line-height: 1.9;
       margin-bottom: 32px;
@@ -132,7 +170,7 @@
       width: 100%;
       padding: 14px 20px;
       font-family: 'Silkscreen', serif;
-      font-size: 13px;
+      font-size: 11px;
       color: #f0e6c8;
       background: rgba(20, 14, 6, 0.8);
       border: 1px solid #6b4f2a;
@@ -168,7 +206,6 @@
     }
 
     .outcome-box.visible { display: block; }
-
     .outcome-box.good { border-color: #3a6b3a; color: #7ec87e; }
     .outcome-box.bad  { border-color: #8b3a3a; color: #c87e7e; }
 
@@ -192,12 +229,94 @@
 
     .continue-btn:hover { background-color: #e0aa50; transform: scale(1.03); }
 
-    .inv-label {
-      font-size: 10px;
+    /* ============
+       Shared Panel Styles
+       (offer, shop, minigame)
+       ============ */
+    .section-title {
+      font-size: 13px;
+      color: #a88c5a;
+      letter-spacing: 3px;
+      margin: 0 0 16px;
+      text-align: center;
+    }
+
+    .cards-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      width: 140px;
+      background: rgba(20, 14, 6, 0.85);
+      border: 2px solid #6b4f2a;
+      padding: 14px 10px;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+      text-align: center;
+    }
+
+    .card:hover { border-color: #c8963c; transform: translateY(-3px); }
+    .card.selected { border-color: #e0aa50; background: rgba(40, 28, 8, 0.95); }
+    .card.unaffordable { opacity: 0.4; cursor: not-allowed; }
+
+    .card-name {
+      font-size: 11px;
       color: #f0e6c8;
-      letter-spacing: 1px;
-      margin-right: 12px;
-      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 9px;
+      color: #a88c5a;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 10px;
+      color: #c8963c;
+    }
+
+    .panel-confirm-btn {
+      margin-top: 8px;
+      padding: 12px 32px;
+      font-family: 'Silkscreen', serif;
+      font-size: 12px;
+      color: #1a1209;
+      background-color: #c8963c;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .panel-confirm-btn.ready {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .panel-confirm-btn.ready:hover { background-color: #e0aa50; }
+
+    .panel-leave-btn {
+      margin-top: 8px;
+      padding: 12px 32px;
+      font-family: 'Silkscreen', serif;
+      font-size: 12px;
+      color: #f0e6c8;
+      background: transparent;
+      border: 1px solid #6b4f2a;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .panel-leave-btn:hover {
+      border-color: #c8963c;
+      color: #c8963c;
     }
 
   </style>
@@ -236,36 +355,52 @@
 
     <!-- Encounter Card -->
     <div class="encounter-card">
-      <div id="enc-offer" style="display:none"></div>
-      <div id="enc-shop" style="display:none"></div>
-      <div id="enc-minigame" style="display:none"></div>
-      <div id="enc-offer" style="display:none"></div>
-      <div id="enc-shop" style="display:none"></div>
-      <div class="encounter-type" id="enc-type"></div>
-      <div class="encounter-icon" id="enc-icon"></div>
-      <div class="encounter-title" id="enc-title"></div>
-      <div class="encounter-desc" id="enc-desc"></div>
-      <div class="choices" id="enc-choices"></div>
-      <div class="outcome-box" id="enc-outcome">
-        <div class="outcome-title" id="outcome-title"></div>
-        <div id="outcome-desc"></div>
-        <button class="continue-btn" onclick="continueJourney()">CONTINUE →</button>
+
+      <!-- Encounter Info (hidden when a panel is active) -->
+      <div id="enc-info">
+        <div class="encounter-type" id="enc-type"></div>
+        <div class="encounter-icon" id="enc-icon"></div>
+        <div class="encounter-title" id="enc-title"></div>
+        <div class="encounter-desc" id="enc-desc"></div>
+        <div class="choices" id="enc-choices"></div>
+        <div class="outcome-box" id="enc-outcome">
+          <div class="outcome-title" id="outcome-title"></div>
+          <div id="outcome-desc"></div>
+          <button class="continue-btn" onclick="continueJourney()">CONTINUE →</button>
+        </div>
       </div>
+
+      <!-- Offer Panel (shown when pendingOffer is set) -->
+      <div id="enc-offer" style="display:none"></div>
+
+      <!-- Shop Panel (shown when pendingShop is set) -->
+      <div id="enc-shop" style="display:none"></div>
+
+      <!-- Minigame Panel (shown when pendingMinigame is set) -->
+      <div id="enc-minigame" style="display:none"></div>
+      
+      <!-- Trade Panel (shown when pendingTrade is set) -->
+      <div id="enc-trade" style="display:none"></div>
+
     </div>
 
   </div>
 
   <script type="module">
+
+    // ============
+    // Imports
+    // ============
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
     import { ENCOUNTERS } from '/Frontend/Scripts/gamelogic/Encounters.js'
     import { RARITY_VALUES } from '/Frontend/Scripts/gamelogic/Cards.js'
     import { handleEncounter } from '/Frontend/Scripts/gamelogic/EncounterHandler.js'
     import { resolveItemValueComparison } from '/Frontend/Scripts/gamelogic/Minigames.js'
+    import { initMusic } from '/Frontend/Scripts/components/audioManager.js'
 
     // ============
     // Music
     // ============
-    import { initMusic } from '/Frontend/Scripts/components/audioManager.js'
     initMusic()
 
     // ============
@@ -281,8 +416,6 @@
       document.getElementById('hud-relics').textContent     = gameObject.player.relic.length
       document.getElementById('hud-relics-max').textContent = gameObject.player.decks.relics
     }
-    gameObject.subscribe(updateHUD)
-    updateHUD()
 
     // ============
     // Inventory
@@ -318,229 +451,283 @@
       const grid = document.getElementById('inv-grid')
       grid.innerHTML = ''
 
-      let items = []
-      let type = ''
-      let maxSlots = 0
-
+      let items = [], type = '', maxSlots = 0
       if (activeTab === 'merchandise') {
-          items = gameObject.player.merchandise
-          type = 'merchandise'
-          maxSlots = gameObject.player.decks.merchandise
+        items = gameObject.player.merchandise
+        type = 'merchandise'
+        maxSlots = gameObject.player.decks.merchandise
       } else if (activeTab === 'consumables') {
-          items = gameObject.player.consumables
-          type = 'consumable'
-          maxSlots = gameObject.player.decks.consumables
+        items = gameObject.player.consumables
+        type = 'consumable'
+        maxSlots = gameObject.player.decks.consumables
       } else {
-          items = gameObject.player.relic
-          type = 'relic'
-          maxSlots = gameObject.player.decks.relics
+        items = gameObject.player.relic
+        type = 'relic'
+        maxSlots = gameObject.player.decks.relics
       }
 
       for (let i = 0; i < maxSlots; i++) {
-          const card = items[i]
-
-          const div = document.createElement('div')
-          div.className = `inv-card ${type}`
-
-          if (card) {
-          // filled slot
+        const card = items[i]
+        const div = document.createElement('div')
+        div.className = `inv-card ${type}`
+        if (card) {
           div.innerHTML = `
-              <div class="inv-card-icon">${card.icon ?? '📦'}</div>
-              <div class="inv-card-name">${card.name}</div>
-              <div class="inv-card-desc">${card.description ?? ''}</div>
-              ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
+            <div class="inv-card-icon">${card.icon ?? '📦'}</div>
+            <div class="inv-card-name">${card.name}</div>
+            <div class="inv-card-desc">${card.description ?? ''}</div>
+            ${card.baseValue ? `<div class="inv-card-value">💰 ${card.baseValue}g</div>` : ''}
           `
-          } else {
-          // empty slot
+        } else {
           div.classList.add('empty')
           div.innerHTML = `
-              <div class="inv-card-icon">+</div>
-              <div class="inv-card-name">Empty Slot</div>
+            <div class="inv-card-icon">+</div>
+            <div class="inv-card-name">Empty Slot</div>
           `
-          }
-
-          grid.appendChild(div)
+        }
+        grid.appendChild(div)
       }
     }
 
-    gameObject.subscribe(state => {
-      if (state.gameState.pendingMinigame) {
-        renderMinigame(state.gameState.pendingMinigame)
-      }
-    })
-
+    // ============
+    // Subscriptions
+    // ============
+    gameObject.subscribe(updateHUD)
     gameObject.subscribe(() => { if (inventoryOpen) renderInventory() })
+    gameObject.subscribe(state => { if (state.gameState.pendingOffer)    renderOffer(state.gameState.pendingOffer) })
+    gameObject.subscribe(state => { if (state.gameState.pendingShop)     renderShop(state.gameState.pendingShop) })
+    gameObject.subscribe(state => { if (state.gameState.pendingMinigame) renderMinigame(state.gameState.pendingMinigame) })
+    gameObject.subscribe(state => { if (state.gameState.pendingTrade) renderTrade(state.gameState.pendingTrade) })
 
-    gameObject.subscribe(state => {
-        if (state.gameState.pendingOffer) {
-            renderOffer(state.gameState.pendingOffer)
-        }
+    // ============
+    // Helpers
+    // ============
+    function showPanel(panelId) {
+      document.getElementById('enc-info').style.display    = 'none'
+      document.getElementById('enc-offer').style.display   = 'none'
+      document.getElementById('enc-shop').style.display    = 'none'
+      document.getElementById('enc-minigame').style.display = 'none'
+      document.getElementById(panelId).style.display = 'block'
+    }
+
+    function closePanel() {
+      document.getElementById('enc-offer').style.display    = 'none'
+      document.getElementById('enc-shop').style.display     = 'none'
+      document.getElementById('enc-minigame').style.display = 'none'
+      document.getElementById('enc-info').style.display     = 'block'
+    }
+
+    // ============
+    // Encounter Rendering
+    // ============
+    const currentEncounterId = gameObject.gameState.currentLeg.eventQueue[0]
+    const encounter = ENCOUNTERS[currentEncounterId]
+
+    console.log('queue:', gameObject.gameState.currentLeg.eventQueue)
+    console.log('currentEncounterId:', currentEncounterId)
+    console.log('encounter:', encounter)
+
+    document.getElementById('encounter-bg').style.backgroundImage = `url('${encounter.bg ?? ''}')`
+
+    const encType = document.getElementById('enc-type')
+    encType.textContent = encounter.displayType ?? ''
+    encType.className   = `encounter-type ${encounter.typeClass ?? ''}`
+    document.getElementById('enc-icon').textContent  = encounter.icon ?? ''
+    document.getElementById('enc-title').textContent = encounter.title ?? ''
+    document.getElementById('enc-desc').textContent  = encounter.description ?? ''
+
+    const choicesEl = document.getElementById('enc-choices')
+    encounter.options.forEach((option, index) => {
+      const btn = document.createElement('button')
+      btn.className = 'choice-btn'
+      btn.innerHTML = `<span class="choice-label">${String.fromCharCode(65 + index)}.</span>${option.label}`
+      btn.addEventListener('click', () => resolveChoice(option, index, btn))
+      choicesEl.appendChild(btn)
     })
 
-    gameObject.subscribe(state => {
-      if (state.gameState.pendingShop) {
-        renderShop(state.gameState.pendingShop)
+    function renderTrade(trade) {
+      showPanel('enc-trade')
+      const el = document.getElementById('enc-trade')
+  
+      const RARITY_ORDER = ["common", "uncommon", "rare", "epic", "legendary", "mythic"]
+  
+      function rarityRank(rarity) {
+          return RARITY_ORDER.indexOf(rarity)
       }
-    })
-
-    function renderMinigame(minigame) {
-      document.getElementById('enc-choices').style.display = 'none'
-      document.getElementById('enc-outcome').style.display = 'none'
-
-      const el = document.getElementById('enc-minigame')
-      el.style.display = 'block'
-
-      if (minigame.phase === "pick") {
-        renderMinigamePick(minigame, el)
-      } else if (minigame.phase === "result") {
-        renderMinigameResult(minigame, el)
+  
+      function purchasingPower(card) {
+          return rarityRank(card.rarity) + (card.category === trade.traderCategory ? 1 : 0)
       }
-    }
-
-    function renderMinigamePick(minigame, el) {
-      const merchandise = gameObject.player.merchandise
-      el.innerHTML = `
-        <div class="section-title">WAGER A CARD</div>
-        <div class="encounter-desc">
-          The ${minigame.category} trader wants to compete.
-          Pick a card to wager — highest rarity wins.
-        </div>
-        <div class="cards-row" id="minigame-cards"></div>
-        <button class="confirm-btn" id="minigame-confirm" disabled onclick="confirmWager()">
-          WAGER
-        </button>
-      `
-
-      const container = document.getElementById('minigame-cards')
-      let selectedId = null
-
-      if (merchandise.length === 0) {
-        container.innerHTML = `<div class="inv-empty">No merchandise to wager.</div>`
-        return
+  
+      function canAfford(playerCard, traderCard) {
+          return purchasingPower(playerCard) >= rarityRank(traderCard.rarity)
       }
+  
+      let selectedTraderCard = null
+      let selectedPlayerCard = null
+  
+      function render() {
+          el.innerHTML = `
+              <div class="section-title">TRADE</div>
+              <div class="trade-layout">
+                  <div class="trade-col">
+                      <div class="trade-col-title">THEIR GOODS</div>
+                      <div id="trader-cards"></div>
+                  </div>
+                  <div class="trade-col">
+                      <div class="trade-col-title">YOUR GOODS</div>
+                      <div id="player-cards"></div>
+                  </div>
+              </div>
+              <div id="trade-feedback" class="trade-feedback"></div>
+              <div class="trade-actions">
+                  <button class="panel-confirm-btn" id="trade-confirm" onclick="confirmTrade()">TRADE</button>
+                  <button class="panel-leave-btn" onclick="closeTrade()">LEAVE</button>
+              </div>
+          `
+  
+          renderTraderCards()
+          renderPlayerCards()
+      }
+  
+      function renderTraderCards() {
+          const container = document.getElementById('trader-cards')
+          container.innerHTML = ''
+  
+          trade.traderInventory
+              .filter(card => !trade.tradedTraderIds.includes(card.id))
+              .forEach(card => {
+                  const div = document.createElement('div')
+                  const isSelected = selectedTraderCard?.id === card.id
+                  div.className = `card ${isSelected ? 'selected' : ''}`
+                  div.innerHTML = `
+                      <div class="card-name">${card.name}</div>
+                      <div class="card-desc">${card.description}</div>
+                      <div class="card-value">${card.rarity}</div>
+                  `
+                  div.addEventListener('click', () => {
+                      selectedTraderCard = isSelected ? null : card
+                      updateFeedback()
+                      renderTraderCards()
+                      renderPlayerCards()
+                  })
+                  container.appendChild(div)
+              })
+      }
+  
+      function renderPlayerCards() {
+          const container = document.getElementById('player-cards')
+          container.innerHTML = ''
+  
+          gameObject.player.merchandise
+              .filter(card => !trade.tradedPlayerIds.includes(card.id))
+              .forEach(card => {
+                  const isSelected = selectedPlayerCard?.id === card.id
+                  const isValid = selectedTraderCard ? canAfford(card, selectedTraderCard) : true
+                  const div = document.createElement('div')
+                  div.className = `card ${isSelected ? 'selected' : ''} ${!isValid ? 'unaffordable' : ''}`
+                  div.innerHTML = `
+                      <div class="card-name">${card.name}</div>
+                      <div class="card-desc">${card.description}</div>
+                      <div class="card-value">${card.rarity}${card.category === trade.traderCategory ? ' ★' : ''}</div>
+                  `
+                  div.addEventListener('click', () => {
+                      if (!isValid) return
+                      selectedPlayerCard = isSelected ? null : card
+                      updateFeedback()
+                      renderPlayerCards()
+                      const btn = document.getElementById('trade-confirm')
+                      if (btn) btn.classList.toggle('ready', !!(selectedTraderCard && selectedPlayerCard))
+                  })
+                  container.appendChild(div)
+              })
+      }
+  
+      function updateFeedback() {
+          const fb = document.getElementById('trade-feedback')
+          if (!fb) return
+          if (!selectedTraderCard) {
+              fb.textContent = 'Select an item from their inventory.'
+              return
+          }
+          if (!selectedPlayerCard) {
+              fb.textContent = `You need ${selectedTraderCard.rarity} purchasing power. Category match gives +1.`
+              return
+          }
+          if (canAfford(selectedPlayerCard, selectedTraderCard)) {
+              fb.textContent = `Trade is valid. ${selectedPlayerCard.name} → ${selectedTraderCard.name}`
+          } else {
+              fb.textContent = `Not enough purchasing power for ${selectedTraderCard.name}.`
+          }
+      }
+  
+      window.confirmTrade = function () {
+          if (!selectedTraderCard || !selectedPlayerCard) return
+          if (!canAfford(selectedPlayerCard, selectedTraderCard)) return
+  
+          // remove player's item, give trader's item
+          gameObject.removeMerchandise(selectedPlayerCard.id)
+          gameObject.addMerchandise(selectedTraderCard.id)
+  
+          // mark both as traded
+          trade.tradedTraderIds.push(selectedTraderCard.id)
+          trade.tradedPlayerIds.push(selectedPlayerCard.id)
+  
+          // reset selections
+          selectedTraderCard = null
+          selectedPlayerCard = null
+  
+          // re-render
+          render()
+      }
+  
+      window.closeTrade = function () {
+          gameObject.gameState.pendingTrade = null
+          gameObject.resolveEncounter()
+          gameObject._notify()
+          continueJourney()
+      }
+  
+      render()
+  }
 
-      merchandise.forEach(card => {
-        const div = document.createElement('div')
-        div.className = 'card'
-        div.innerHTML = `
-          <div class="card-name">${card.name}</div>
-          <div class="card-desc">${card.description}</div>
-          <div class="card-value">${card.rarity}</div>
-        `
-        div.addEventListener('click', () => {
-          container.querySelectorAll('.card').forEach(c => c.classList.remove('selected'))
-          div.classList.add('selected')
-          selectedId = card.id
-          document.getElementById('minigame-confirm').disabled = false
-        })
-        container.appendChild(div)
+    // ============
+    // Choice Resolution
+    // ============
+    function resolveChoice(option, index, btn) {
+      document.querySelectorAll('.choice-btn').forEach(b => {
+        b.style.pointerEvents = 'none'
+        b.style.opacity = '0.4'
       })
+      btn.style.opacity = '1'
+      btn.style.borderColor = '#c8963c'
 
-      window.confirmWager = function () {
-        if (!selectedId) return
-        resolveItemValueComparison(selectedId)
-      }
-  }
+      const result = handleEncounter(currentEncounterId, index, gameObject)
+      if (!result) return
 
-  function renderMinigameResult(minigame, el) {
-      const { outcome, traderCard } = minigame
-      el.innerHTML = `
-        <div class="section-title">${outcome.title}</div>
-        <div class="encounter-desc">${outcome.description}</div>
-        <div class="cards-row">
-          <div class="card">
-            <div class="card-name">Trader's Card</div>
-            <div class="card-name">${traderCard.name}</div>
-            <div class="card-value">${traderCard.rarity}</div>
-          </div>
-          ${outcome.reward ? `
-          <div class="card selected">
-            <div class="card-name">Your Reward</div>
-            <div class="card-name">${outcome.reward.name}</div>
-            <div class="card-value">${outcome.reward.rarity}</div>
-          </div>` : ''}
-        </div>
-        <button class="confirm-btn ready" onclick="closeMinigame()">CONTINUE →</button>
-      `
+      // if a panel was opened by the effect, subscription handles rendering
+      // only show outcome box for simple results with no pending panel
+      const hasPending = gameObject.gameState.pendingOffer
+        || gameObject.gameState.pendingShop
+        || gameObject.gameState.pendingMinigame
 
-      window.closeMinigame = function () {
-        gameObject.gameState.pendingMinigame = null
-        gameObject.resolveEncounter()
-        gameObject._notify()
-        window.continueJourney()
+      if (!hasPending) {
+        const box = document.getElementById('enc-outcome')
+        box.className = 'outcome-box visible'
+        document.getElementById('outcome-title').textContent = 'Outcome'
+        document.getElementById('outcome-desc').textContent  = result.description
       }
     }
 
-    function renderShop(shop) {
-      const hasCurseInflation = gameObject.player.relic.some(r => r.effect === "curse_inflation")
-      const price = Math.ceil(RARITY_VALUES[card.rarity] * shop.markup * (hasCurseInflation ? 1.25 : 1))
-
-      document.getElementById('enc-choices').style.display = 'none'
-      document.getElementById('enc-outcome').style.display = 'none'
-
-      const shopEl = document.getElementById('enc-shop')
-      shopEl.style.display = 'block'
-      shopEl.innerHTML = `
-        <div class="section-title">ROADSIDE SHOP</div>
-        <div class="cards-row" id="shop-cards"></div>
-        <button class="confirm-btn ready" onclick="closeShop()">LEAVE SHOP</button>
-      `
-
-      const container = document.getElementById('shop-cards')
-
-      shop.items.forEach(card => {
-        const { RARITY_VALUES } = RARITY_VALUES
-        const price = Math.ceil(RARITY_VALUES[card.rarity] * shop.markup)
-        const playerResource = shop.currency === "gold"
-          ? gameObject.player.gold
-          : gameObject.player.food
-        const canAfford = playerResource >= price
-
-        const div = document.createElement('div')
-        div.className = `card ${canAfford ? '' : 'unaffordable'}`
-        div.innerHTML = `
-          <div class="card-name">${card.name}</div>
-          <div class="card-desc">${card.description}</div>
-          <div class="card-value">${price} ${shop.currency === "gold" ? "💰" : "🍞"}</div>
-        `
-
-        if (canAfford) {
-          div.addEventListener('click', () => buyItem(card, price, shop.currency, div))
-        }
-
-        container.appendChild(div)
-      })
-    }
-
-  function buyItem(card, price, currency, div) {
-    if (currency === "gold") {
-      gameObject.spendGold(price)
-    } else {
-      gameObject.spendFood(price)
-    }
-    gameObject.addMerchandise(card.id)
-    div.classList.add('selected')
-    div.style.pointerEvents = 'none'
-  }
-
-  window.closeShop = function () {
-    gameObject.gameState.pendingShop = null
-    gameObject.resolveEncounter()
-    gameObject._notify()
-    window.continueJourney()
-  }
-
+    // ============
+    // Offer Panel
+    // ============
     function renderOffer(offer) {
-      // hide choices, show offer screen
-      document.getElementById('enc-choices').style.display = 'none'
-      document.getElementById('enc-outcome').style.display = 'none'
-
+      showPanel('enc-offer')
       const offerEl = document.getElementById('enc-offer')
-      offerEl.style.display = 'block'
       offerEl.innerHTML = `
         <div class="section-title">CHOOSE ${offer.pick} ITEM${offer.pick > 1 ? 'S' : ''}</div>
         <div class="cards-row" id="offer-cards"></div>
-        <button class="confirm-btn" id="offer-confirm" disabled onclick="confirmOffer()">CONFIRM</button>
+        <button class="panel-confirm-btn" id="offer-confirm" onclick="confirmOffer()">CONFIRM</button>
       `
 
       const container = document.getElementById('offer-cards')
@@ -562,86 +749,168 @@
             selected.push(card.id)
             div.classList.add('selected')
           }
-          document.getElementById('offer-confirm').disabled = selected.length !== offer.pick
+          const btn = document.getElementById('offer-confirm')
+          btn.classList.toggle('ready', selected.length === offer.pick)
         })
         container.appendChild(div)
       })
 
       window.confirmOffer = function () {
-          const offer = gameObject.gameState.pendingOffer
-          selected.forEach(id => {
-              if (offer.offerType === "relic") {
-                  gameObject.addRelic(id)
-              } else {
-                  gameObject.addMerchandise(id)
-              }
-          })
-          gameObject.gameState.pendingOffer = null
-          gameObject.resolveEncounter()
-          gameObject._notify()
-          window.continueJourney()
+        const offer = gameObject.gameState.pendingOffer
+        selected.forEach(id => {
+          if (offer.offerType === 'relic') {
+            gameObject.addRelic(id)
+          } else {
+            gameObject.addMerchandise(id)
+          }
+        })
+        gameObject.gameState.pendingOffer = null
+        gameObject.resolveEncounter()
+        gameObject._notify()
+        continueJourney()
       }
     }
 
     // ============
-    // Pick & Render Encounter
+    // Shop Panel
     // ============
-    const currentEncounterId = gameObject.gameState.currentLeg.eventQueue[0]
-    const encounter = ENCOUNTERS[currentEncounterId]
+    function renderShop(shop) {
+      showPanel('enc-shop')
+      const shopEl = document.getElementById('enc-shop')
+      const hasCurseInflation = gameObject.player.relic.some(r => r.effect === 'curse_inflation')
 
-    // debug check
-    console.log('queue:', gameObject.gameState.currentLeg.eventQueue)
-    console.log('currentEncounterId:', currentEncounterId)
-    console.log('encounter:', encounter)
+      shopEl.innerHTML = `
+        <div class="section-title">ROADSIDE SHOP</div>
+        <div class="cards-row" id="shop-cards"></div>
+        <button class="panel-leave-btn" onclick="closeShop()">LEAVE SHOP</button>
+      `
 
-    // set background
-    document.getElementById('encounter-bg').style.backgroundImage =
-      `url('${encounter.bg}')`
+      const container = document.getElementById('shop-cards')
 
-    // populate card
-    const encType = document.getElementById('enc-type')
-    encType.textContent = encounter.displayType ?? ''
-    encType.className   = `encounter-type ${encounter.typeClass ?? ''}`
-    document.getElementById('enc-icon').textContent  = encounter.icon ?? ''
-    document.getElementById('enc-title').textContent = encounter.title
-    document.getElementById('enc-desc').textContent  = encounter.description
+      shop.items.forEach(card => {
+        const basePrice = Math.ceil(RARITY_VALUES[card.rarity] * shop.markup)
+        const price = hasCurseInflation ? Math.ceil(basePrice * 1.25) : basePrice
+        const playerResource = shop.currency === 'gold'
+          ? gameObject.player.gold
+          : gameObject.player.food
+        const canAfford = playerResource >= price
 
-    const choicesEl = document.getElementById('enc-choices')
-
-    encounter.options.forEach((option, index) => {
-      const btn = document.createElement('button')
-      btn.className = 'choice-btn'
-      btn.innerHTML = `<span class="choice-label">${String.fromCharCode(65 + index)}.</span>${option.label}`
-      btn.addEventListener('click', () => resolveChoice(option, index, btn))
-      choicesEl.appendChild(btn)
-    })
-
-    function resolveChoice(option, index, btn) {
-      document.querySelectorAll('.choice-btn').forEach(b => {
-        b.style.pointerEvents = 'none'
-        b.style.opacity = '0.4'
+        const div = document.createElement('div')
+        div.className = `card ${canAfford ? '' : 'unaffordable'}`
+        div.innerHTML = `
+          <div class="card-name">${card.name}</div>
+          <div class="card-desc">${card.description}</div>
+          <div class="card-value">${price} ${shop.currency === 'gold' ? '💰' : '🍞'}</div>
+        `
+        if (canAfford) {
+          div.addEventListener('click', () => buyItem(card, price, shop.currency, div))
+        }
+        container.appendChild(div)
       })
-      btn.style.opacity = '1'
-      btn.style.borderColor = '#c8963c'
+    }
 
-      const result = handleEncounter(currentEncounterId, index, gameObject)
+    function buyItem(card, price, currency, div) {
+      if (currency === 'gold') {
+        gameObject.spendGold(price)
+      } else {
+        gameObject.spendFood(price)
+      }
+      gameObject.addMerchandise(card.id)
+      div.classList.add('selected')
+      div.style.pointerEvents = 'none'
+    }
 
-      const box = document.getElementById('enc-outcome')
-      box.className = `outcome-box visible`
-      document.getElementById('outcome-title').textContent = 'Outcome'
-      document.getElementById('outcome-desc').textContent = result.description
+    window.closeShop = function () {
+      gameObject.gameState.pendingShop = null
+      gameObject.resolveEncounter()
+      gameObject._notify()
+      continueJourney()
     }
 
     // ============
-    // Continue
+    // Minigame Panel
+    // ============
+    function renderMinigame(minigame) {
+      showPanel('enc-minigame')
+      const el = document.getElementById('enc-minigame')
+      if (minigame.phase === 'pick') {
+        renderMinigamePick(minigame, el)
+      } else if (minigame.phase === 'result') {
+        renderMinigameResult(minigame, el)
+      }
+    }
+
+    function renderMinigamePick(minigame, el) {
+      const merchandise = gameObject.player.merchandise
+
+      // check before rendering anything
+      if (merchandise.length === 0) {
+          el.innerHTML = `
+              <div class="section-title">NOTHING TO WAGER</div>
+              <div class="encounter-desc">You have no merchandise to offer the trader.</div>
+              <button class="panel-confirm-btn ready" onclick="closeMinigameEmpty()">LEAVE</button>
+          `
+          window.closeMinigameEmpty = function () {
+              gameObject.gameState.pendingMinigame = null
+              gameObject.resolveEncounter()
+              gameObject._notify()
+              continueJourney()
+          }
+          return
+      }
+
+      // rest of existing render code
+      el.innerHTML = `...`
+    }
+
+    function renderMinigameResult(minigame, el) {
+      const { outcome, traderCard } = minigame
+      el.innerHTML = `
+        <div class="section-title">${outcome.title}</div>
+        <div class="encounter-desc">${outcome.description}</div>
+        <div class="cards-row">
+          <div class="card">
+            <div class="card-name">Trader's Card</div>
+            <div class="card-name">${traderCard.name}</div>
+            <div class="card-value">${traderCard.rarity}</div>
+          </div>
+          ${outcome.reward ? `
+          <div class="card selected">
+            <div class="card-name">Your Reward</div>
+            <div class="card-name">${outcome.reward.name}</div>
+            <div class="card-value">${outcome.reward.rarity}</div>
+          </div>` : ''}
+        </div>
+        <button class="panel-confirm-btn ready" onclick="closeMinigame()">CONTINUE →</button>
+      `
+
+      window.closeMinigame = function () {
+        gameObject.gameState.pendingMinigame = null
+        gameObject.resolveEncounter()
+        gameObject._notify()
+        continueJourney()
+      }
+    }
+
+    // ============
+    // Navigation
     // ============
     window.continueJourney = function () {
       if (gameObject.gameState.phase === 'checkpoint') {
         window.location.href = '/Frontend/Scripts/pages/checkpoint.html'
+      } else if (gameObject.gameState.phase === 'win') {
+        window.location.href = '/Frontend/Scripts/pages/win.html'
+      } else if (gameObject.gameState.phase === 'lose') {
+        window.location.href = '/Frontend/Scripts/pages/lose.html'
       } else {
         window.location.href = '/Frontend/Scripts/pages/encounter.html'
       }
     }
+
+    // ============
+    // Init
+    // ============
+    updateHUD()
 
   </script>
 

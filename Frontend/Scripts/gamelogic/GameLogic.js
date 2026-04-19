@@ -91,6 +91,7 @@ const gameObject = {
             pathOptions: []
         },
         pendingOffer: null,
+        pendingTrade: null,
         pendingShop: null,
         pendingMinigame: null,
         loadout: {
@@ -572,6 +573,8 @@ export function generateShopInventoryRandom() {
         id: food.id,
         name: food.name,
         amount: food.amount,
+        icon: "🍞", // Default food icon
+        description: `Restores ${food.amount} food.`,
         price: food.price,
         sold: false
     })
@@ -584,6 +587,8 @@ export function generateShopInventoryRandom() {
         id: cons.id,
         name: cons.name,
         price: cons.baseValue,
+        icon: cons.icon || "🧪",
+        description: cons.description || "",
         sold: false
     })
 
@@ -593,6 +598,8 @@ export function generateShopInventoryRandom() {
         type: "merchandise",
         id: merch.id,
         name: merch.name,
+        icon: merch.icon || "📦",
+        description: merch.description || "",
         rarity: merch.rarity,
         price: Math.floor(RARITY_VALUES[merch.rarity] * MERCH_BUY_MARKUP),
         sold: false

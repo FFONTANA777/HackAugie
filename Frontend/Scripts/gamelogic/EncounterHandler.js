@@ -4,6 +4,17 @@ import { CARDS } from './Cards.js'
 import { RELICS } from './Relics.js'
 import gameObject, { MERCH_BUY_MARKUP } from './GameLogic.js'
 
+const RARITY_ORDER = ["common", "uncommon", "rare", "epic", "legendary", "mythic"]
+
+function generateTraderInventory(traderCategory, deckSize) {
+    const pool = Object.values(CARDS).filter(c =>
+        c.type === "merchandise" &&
+        c.category !== traderCategory
+    )
+    const shuffled = [...pool].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, deckSize)
+}
+
 // ================
 // Condition Checks
 // ================
@@ -42,7 +53,7 @@ function checkCondition(condition, player) {
 // Effect Appliers
 // ===============
 
-function applyEffects(effects, gameObject) {
+function applyEffects(effects, gameObject, encounterId) {
     for (const effect of effects) {
         switch (effect.type) {
             case "default":
@@ -124,7 +135,7 @@ function applyEffects(effects, gameObject) {
                 gameObject.gameState.pendingShop = {
                     items: shuffled.slice(0, 4),
                     currency: "gold",
-                    markup: SHOP_MARKUP
+                    markup: MERCH_BUY_MARKUP
                 }
                 gameObject._notify()
                 break
@@ -156,6 +167,20 @@ function applyEffects(effects, gameObject) {
                 break
             }
 
+            case "start_minigame": {
+                const encounter = ENCOUNTERS[encounterId]
+                const minigameInit = MINIGAMES[effect.minigame]
+                if (!minigameInit) {
+                    console.error(`Minigame not found: ${effect.minigame}`)
+                    break
+                }
+                minigameInit({
+                    ...encounter,
+                    minigameConfig: { category: effect.category }
+                }, gameObject)
+                break
+            }
+
             case "lift_curse": {
                 const curses = gameObject.player.relic.filter(r => r.cursed)
                 if (curses.length === 0) break
@@ -163,6 +188,19 @@ function applyEffects(effects, gameObject) {
                 const target = curses[curses.length - 1]
                 gameObject.removeRelic(target.id)
                 gameObject.useConsumable("totem_of_undying")
+                gameObject._notify()
+                break
+            }
+
+            case "open_trade_menu": {
+                const traderCategory = effect.category
+                const deckSize = gameObject.player.decks.merchandise
+                gameObject.gameState.pendingTrade = {
+                    traderCategory,
+                    traderInventory: generateTraderInventory(traderCategory, deckSize),
+                    tradedTraderIds: [],   // items trader has given away
+                    tradedPlayerIds: []    // items player has given away
+                }
                 gameObject._notify()
                 break
             }
@@ -248,7 +286,7 @@ function handleEncounter(encounterId, optionIndex, gameObject) {
         const result = resolveOutcome(option, gameObject.player)
         if (!result) return null
 
-        applyEffects(result.effects, gameObject)
+        applyEffects(result.effects, gameObject, encounterId)
         gameObject.logDecision(option.label)
         gameObject.resolveEncounter()
 

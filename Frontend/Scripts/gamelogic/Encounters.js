@@ -478,7 +478,7 @@ export const ENCOUNTERS = {
     // ===========
     travelling_artist: {
         id: "travelling_artist",
-        type: "minigame",
+        type: "decision",
         minigame: "item_value_comparison",
         minigameConfig: { category: "art" },
         displayType: "ENCOUNTER",
