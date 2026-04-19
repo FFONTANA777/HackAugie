@@ -31,12 +31,28 @@ export const CONSUMABLES = {
 }
 
 export const STARTER_ITEMS = {
-    // travel_rations: {
-    //     id: "travel_rations",
-    //     type: "consumable",
-    //     name: "Travel Rations",
-    //     baseValue: 0,
-    //     description: "Skip the food cost of your next leg.",
-    //     effect: "skip_food_cost"
-    // },
+    travel_rations: {
+        id: "travel_rations",
+        type: "consumable",
+        source: "starter",
+        name: "Travel Rations",
+        description: "Skip the food cost of your next leg, but attracts more danger",
+        effect: "risky_rations"
+    },
+    dorans_stonks: {
+        id: "doransstonks",
+        type: "consumable",
+        source: "starter",
+        name: "Doran's Stonks",
+        description: "Selling on first town gives you 80% of the item value, but on the next town it will earn you 50% more",
+        effect: "delayed_sell"
+    },
+    piggy_bank: {
+        id: "piggybank",
+        type: "consumable",
+        source: "starter",
+        name: "Piggy Bank",
+        description: "Reaching a certain amount of gold will grant you something",
+        effect: "gold_milestone"
+    },
 }
