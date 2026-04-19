@@ -1,4 +1,6 @@
 import { CARDS, SETS } from './Cards.js'
+import { RELICS } from './Relics.js'
+import { CONSUMABLES, STARTER_ITEMS } from './Consumables.js'
 
 // =======
 // Configs
@@ -71,6 +73,7 @@ const gameObject = {
         this._notify()
     },
     addMerchandise(cardId) {
+        if (!CARDS[cardId]) return
         this.player.merchandise.push({ ...CARDS[cardId] })
         this._notify()
     },
@@ -79,16 +82,41 @@ const gameObject = {
         if (idx !== -1) this.player.merchandise.splice(idx, 1)
         this._notify()
     },
-    addConsumable(cardId) {
-        this.player.consumables.push({ ...CARDS[cardId] })
+    addConsumable(consumableId) {
+        if (!CONSUMABLES[consumableId]) return
+        this.player.consumables.push({ ...CONSUMABLES[consumableId] })
         this._notify()
     },
-    useConsumable(cardId) {
-        const idx = this.player.consumables.findIndex(c => c.id === cardId)
+    useConsumable(consumableId) {
+        const idx = this.player.consumables.findIndex(c => c.id === consumableId)
         if (idx !== -1) this.player.consumables.splice(idx, 1)
         this._notify()
     },
-
+    confirmStarterItem() {
+    if (this.gameState.loadout.itemLocked) return
+    const id = this.gameState.loadout.stagedItem
+    if (id) this.player.consumables.push({ ...STARTER_ITEMS[id] })
+    this.gameState.loadout.itemLocked = true
+    this._notify()
+    },
+    addRelic(relicId) {
+        if (!RELICS[relicId]) return
+        this.player.relic.push({ ...RELICS[relicId] })
+        this._notify()
+    },
+    removeRelic(relicId) {
+        const idx = this.player.relic.findIndex(c => c.id === relicId)
+        if (idx !== -1) this.player.relic.splice(idx, 1)
+        this._notify()
+    },
+    confirmRelic() {
+    if (this.gameState.loadout.relicLocked) return
+    const id = this.gameState.loadout.stagedRelic
+    if (id) this.addRelic(id)
+    this.gameState.loadout.relicLocked = true
+    this._notify()
+    },
+    
     // Phase transitions
     startLeg() {
         // TODO
