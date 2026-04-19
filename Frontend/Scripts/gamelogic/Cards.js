@@ -173,7 +173,7 @@ export const CARDS = {
         name: "Lost Crown",
         set: null,
         rarity: "mythic",
-
+        sellRarity: "legendary",
         description: "A forgotten royal relic. Worth its true value only at journey's end."
     },
 }

@@ -67,3 +67,18 @@ export const RELICS = {
         cursed: true
     },
 }
+
+// ================
+// Pool Filters
+// ================
+// Use these helpers anywhere you need to distribute relics from the pool.
+// - getNormalRelics: loadout, shops, trader rewards, event rewards
+// - getCursedRelics: shrine/ruin rolls, anywhere curses are handed out
+
+export function getNormalRelics() {
+    return Object.keys(RELICS).filter(id => !RELICS[id].cursed)
+}
+
+export function getCursedRelics() {
+    return Object.keys(RELICS).filter(id => RELICS[id].cursed)
+}
