@@ -271,6 +271,8 @@ if (_saved) {
 
 export default gameObject
 
+export { CONSUMABLES, FOOD_OFFERS }
+
 export function getBuyPrice(basePrice, gameObject) {
     let price = basePrice
     const relics = gameObject.player.relic

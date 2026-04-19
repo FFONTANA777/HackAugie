@@ -22,7 +22,7 @@
     .cp-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.1);
       z-index: 1;
     }
 
@@ -331,6 +331,64 @@
 
     .feedback.bad { color: #c87e7e; }
 
+    /* ============
+       Shop Panel (Sliding from Right)
+       ============ */
+    #shop-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 380px;
+      height: 100vh;
+      overflow-y: auto;
+      background: rgba(10, 7, 3, 0.97);
+      border-left: 2px solid #6b4f2a;
+      font-family: 'Silkscreen', serif;
+      z-index: 99;
+      transform: translateX(110%);
+      transition: transform 0.3s ease;
+      padding: 16px 12px;
+    }
+
+    #shop-panel.open {
+      transform: translateX(0);
+    }
+
+    .shop-panel-title {
+      font-size: 14px;
+      color: #f0e6c8;
+      margin-bottom: 16px;
+      text-align: center;
+      letter-spacing: 2px;
+      border-bottom: 1px solid #6b4f2a;
+      padding-bottom: 8px;
+    }
+
+    #shop-trigger {
+      position: fixed;
+      right: 12px;
+      top: 60px;
+      z-index: 98;
+      cursor: pointer;
+      padding: 8px 12px;
+      border: 1px solid #6b4f2a;
+      background: rgba(0, 0, 0, 0.7);
+      color: #f0e6c8;
+      font-family: 'Silkscreen', serif;
+      font-size: 11px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    #shop-trigger:hover {
+      border-color: #c8963c;
+      background: rgba(50, 40, 20, 0.9);
+    }
+
+    #shop-trigger.active {
+      border-color: #c8963c;
+      background: rgba(100, 80, 40, 0.9);
+    }
+
   </style>
 </head>
 <body>
@@ -469,6 +527,7 @@
 
   <script type="module">
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
+    import { getBuyPrice, getSellValue, generateShopInventoryRandom, CONSUMABLES, FOOD_OFFERS } from '/Frontend/Scripts/gamelogic/GameLogic.js'
 
     // ============
     // Music
@@ -647,7 +706,6 @@
     // Shop — Buy Food
     // ============
     window.buyItem = function (stat, amount, cost, btn) {
-      const feedback = document.getElementById('shop-feedback')
       if (gameObject.player.gold < cost) {
         showFeedback('not enough gold!', true)
         return
@@ -658,13 +716,26 @@
     }
 
     // ============
-    // Shop — Consumables
+    // Shop — Consumables (from GameLogic)
     // ============
-    const SHOP_CONSUMABLES = [
-      { icon: '🧪', name: 'Health Tonic',  desc: 'Restores 8 food on use', price: 25 },
-      { icon: '🗺️', name: 'Treasure Map',  desc: 'Reveals a bonus reward', price: 40 },
-      { icon: '🛡️', name: 'Road Ward',     desc: 'Avoid one bad event',    price: 50 },
-    ]
+    const SHOP_CONSUMABLES = []
+
+    async function loadShopConsumables() {
+      // Generate shop inventory from GameLogic
+      const shopSlots = generateShopInventoryRandom()
+      shopSlots.forEach(slot => {
+        if (slot.type === 'consumable') {
+          const cons = CONSUMABLES[slot.id]
+          SHOP_CONSUMABLES.push({
+            icon: cons.icon ?? '🧪',
+            name: cons.name,
+            id: cons.id,
+            desc: cons.description,
+            price: getBuyPrice(cons.baseValue, gameObject)
+          })
+        }
+      })
+    }
 
     function renderShopConsumables() {
       const grid = document.getElementById('consumable-shop')
@@ -678,9 +749,9 @@
           <div class="shop-item-icon">${item.icon}</div>
           <div class="shop-item-name">${item.name}</div>
           <div class="shop-item-desc">${item.desc}</div>
-          <div class="shop-item-price">💰 ${item.price}g</div>
+          <div class="shop-item-price"><img src="/Frontend/public/sprites/money.png" class="hud-icon" alt="Gold"> ${item.price}g</div>
           <button class="buy-btn" ${isFull || !canAfford ? 'disabled' : ''}
-            onclick="buyConsumable('${item.name}', ${item.price}, this)">
+            onclick="buyConsumable('${item.id}', '${item.name}', ${item.price}, this)">
             ${isFull ? 'FULL' : 'BUY'}
           </button>
         `
@@ -688,14 +759,13 @@
       })
     }
 
-    window.buyConsumable = function (name, price, btn) {
+    window.buyConsumable = function (id, name, price, btn) {
       if (gameObject.player.gold < price) { showFeedback('not enough gold!', true); return }
       if (gameObject.player.consumables.length >= gameObject.player.decks.consumables) {
         showFeedback('consumable deck is full!', true); return
       }
       gameObject.spendGold(price)
-      gameObject.player.consumables.push({ name, icon: '🧪', description: '' })
-      gameObject.update({})
+      gameObject.addConsumable(id)
       showFeedback(`${name} purchased!`)
       renderShopConsumables()
     }
@@ -707,14 +777,14 @@
       if (gameObject.player.gold < cost) { showFeedback('not enough gold!', true); return }
       gameObject.spendGold(cost)
       gameObject.player.decks[deck] += amount
-      gameObject.update({})
+      gameObject._notify()
       btn.disabled = true
       btn.textContent = 'UPGRADED'
       showFeedback(`wagon upgraded! +${amount} ${deck} slots`)
     }
 
     // ============
-    // Shop — Sell Merchandise
+    // Shop — Sell Merchandise (from GameLogic)
     // ============
     function renderMerchSell() {
       const list = document.getElementById('merch-sell-list')
@@ -725,7 +795,8 @@
         return
       }
 
-      gameObject.player.merchandise.forEach(card => {
+      gameObject.player.merchandise.forEach((card, index) => {
+        const sellValue = getSellValue(card, false, gameObject)
         const row = document.createElement('div')
         row.className = 'merch-row'
         row.innerHTML = `
@@ -734,17 +805,16 @@
             <div class="merch-row-sub">${card.description ?? ''}</div>
           </div>
           <div style="display:flex;align-items:center">
-            <div class="merch-row-val">💰 ${card.value ?? 0}g</div>
-            <button class="sell-btn" onclick="sellMerch('${card.id}', ${card.value ?? 0}, this)">SELL</button>
+            <div class="merch-row-val"><img src="/Frontend/public/sprites/money.png" class="hud-icon" alt="Gold"> ${sellValue}g</div>
+            <button class="sell-btn" onclick="sellMerch(${index}, ${sellValue}, this)">SELL</button>
           </div>
         `
         list.appendChild(row)
       })
     }
 
-    window.sellMerch = function (id, value, btn) {
-      gameObject.removeMerchandise(id)
-      gameObject.gainGold(value)
+    window.sellMerch = function (index, value, btn) {
+      gameObject.sellMerchandise(index)
       showFeedback(`sold for ${value}g!`)
       renderMerchSell()
     }
@@ -770,6 +840,7 @@
     // ============
     // Init
     // ============
+    loadShopConsumables()
     renderRoutes()
     renderShopConsumables()
     renderMerchSell()
