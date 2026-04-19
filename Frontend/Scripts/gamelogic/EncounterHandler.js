@@ -1,5 +1,6 @@
 import { ENCOUNTERS } from './Encounters.js'
 import { MINIGAMES } from './Minigames.js'
+import { CARDS } from './Cards.js'
 
 // ================
 // Condition Checks
@@ -77,6 +78,17 @@ function applyEffects(effects, gameObject) {
             case "debuff":
                 gameObject.addDebuff(effect.id, effect.value, effect.duration)
                 break
+
+            case "offer_merchandise": {
+                const pool = Object.values(CARDS).filter(c => c.type === "merchandise")
+                const shuffled = [...pool].sort(() => Math.random() - 0.5)
+                gameObject.gameState.pendingOffer = {
+                    candidates: shuffled.slice(0, effect.count),
+                    pick: effect.pick
+                }
+                gameObject._notify()
+                break
+            }
 
             default:
                 console.warn(`Unknown effect type: ${effect.type}`)

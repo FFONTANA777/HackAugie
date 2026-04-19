@@ -29,8 +29,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "Bandits in the Brush",
+        description: "You are ambushed by bandits! Are you capable of fending for yourself or will you lose your livlihood to the likes of them?",
         options: [
             {
                 label: "Make a run for it.",
@@ -38,7 +38,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "has_consumable_effect", id: "bandit_immunity" },
                         result: {
-                            description: "TODO",
+                            description: "With a great weapon, you intimidate the bandits. Their hesitation buys you enough time to escape, bravo.",
                             effects: [{ type: "default" }]
                         }
                     },

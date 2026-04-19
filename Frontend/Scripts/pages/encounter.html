@@ -308,55 +308,107 @@
     }
 
     function renderInventory() {
-    const grid = document.getElementById('inv-grid')
-    grid.innerHTML = ''
+      const grid = document.getElementById('inv-grid')
+      grid.innerHTML = ''
 
-    let items = []
-    let type = ''
-    let maxSlots = 0
+      let items = []
+      let type = ''
+      let maxSlots = 0
 
-    if (activeTab === 'merchandise') {
-        items = gameObject.player.merchandise
-        type = 'merchandise'
-        maxSlots = gameObject.player.decks.merchandise
-    } else if (activeTab === 'consumables') {
-        items = gameObject.player.consumables
-        type = 'consumable'
-        maxSlots = gameObject.player.decks.consumables
-    } else {
-        items = gameObject.player.relic
-        type = 'relic'
-        maxSlots = gameObject.player.decks.relics
-    }
+      if (activeTab === 'merchandise') {
+          items = gameObject.player.merchandise
+          type = 'merchandise'
+          maxSlots = gameObject.player.decks.merchandise
+      } else if (activeTab === 'consumables') {
+          items = gameObject.player.consumables
+          type = 'consumable'
+          maxSlots = gameObject.player.decks.consumables
+      } else {
+          items = gameObject.player.relic
+          type = 'relic'
+          maxSlots = gameObject.player.decks.relics
+      }
 
-    for (let i = 0; i < maxSlots; i++) {
-        const card = items[i]
+      for (let i = 0; i < maxSlots; i++) {
+          const card = items[i]
 
-        const div = document.createElement('div')
-        div.className = `inv-card ${type}`
+          const div = document.createElement('div')
+          div.className = `inv-card ${type}`
 
-        if (card) {
-        // filled slot
-        div.innerHTML = `
-            <div class="inv-card-icon">${card.icon ?? '📦'}</div>
-            <div class="inv-card-name">${card.name}</div>
-            <div class="inv-card-desc">${card.description ?? ''}</div>
-            ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
-        `
-        } else {
-        // empty slot
-        div.classList.add('empty')
-        div.innerHTML = `
-            <div class="inv-card-icon">+</div>
-            <div class="inv-card-name">Empty Slot</div>
-        `
-        }
+          if (card) {
+          // filled slot
+          div.innerHTML = `
+              <div class="inv-card-icon">${card.icon ?? '📦'}</div>
+              <div class="inv-card-name">${card.name}</div>
+              <div class="inv-card-desc">${card.description ?? ''}</div>
+              ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
+          `
+          } else {
+          // empty slot
+          div.classList.add('empty')
+          div.innerHTML = `
+              <div class="inv-card-icon">+</div>
+              <div class="inv-card-name">Empty Slot</div>
+          `
+          }
 
-        grid.appendChild(div)
-    }
+          grid.appendChild(div)
+      }
     }
 
     gameObject.subscribe(() => { if (inventoryOpen) renderInventory() })
+
+    gameObject.subscribe(state => {
+        if (state.gameState.pendingOffer) {
+            renderOffer(state.gameState.pendingOffer)
+        }
+    })
+
+    function renderOffer(offer) {
+      // hide choices, show offer screen
+      document.getElementById('enc-choices').style.display = 'none'
+      document.getElementById('enc-outcome').style.display = 'none'
+
+      const offerEl = document.getElementById('enc-offer')
+      offerEl.style.display = 'block'
+      offerEl.innerHTML = `
+        <div class="section-title">CHOOSE ${offer.pick} ITEM${offer.pick > 1 ? 'S' : ''}</div>
+        <div class="cards-row" id="offer-cards"></div>
+        <button class="confirm-btn" id="offer-confirm" disabled onclick="confirmOffer()">CONFIRM</button>
+      `
+
+      const container = document.getElementById('offer-cards')
+      let selected = []
+
+      offer.candidates.forEach(card => {
+        const div = document.createElement('div')
+        div.className = 'card'
+        div.innerHTML = `
+          <div class="card-name">${card.name}</div>
+          <div class="card-desc">${card.description}</div>
+          <div class="card-value">${card.rarity}</div>
+        `
+        div.addEventListener('click', () => {
+          if (selected.includes(card.id)) {
+            selected = selected.filter(id => id !== card.id)
+            div.classList.remove('selected')
+          } else if (selected.length < offer.pick) {
+            selected.push(card.id)
+            div.classList.add('selected')
+          }
+          document.getElementById('offer-confirm').disabled = selected.length !== offer.pick
+        })
+        container.appendChild(div)
+      })
+
+      window.confirmOffer = function () {
+        selected.forEach(id => gameObject.addMerchandise(id))
+        gameObject.gameState.pendingOffer = null
+        gameObject.resolveEncounter()
+        gameObject._notify()
+        window.continueJourney()
+      }
+    }
 
     // ============
     // Pick & Render Encounter

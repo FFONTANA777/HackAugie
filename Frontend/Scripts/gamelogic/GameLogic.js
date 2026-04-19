@@ -90,6 +90,7 @@ const gameObject = {
         currentCheckpoint: {
             pathOptions: []
         },
+        pendingOffer: null,
         loadout: {
             stagedRelic: null,
             relicLocked: false,
