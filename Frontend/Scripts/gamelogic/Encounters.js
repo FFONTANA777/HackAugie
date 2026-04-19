@@ -296,8 +296,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "The Whispering Ossuary",
+        description: "You stumble upon the skeletal remains of a sanctum, half-swallowed by the earth. A heavy, hallowed silence hangs here, broken only by the faint metallic scent of ancient wealth and the chill of lingering spirits.",
         options: [
             {
                 label: "Search the buried treasures.",
@@ -305,21 +305,21 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "random", chance: 0.5 },
                         result: {
-                            description: "TODO",
+                            description: "Your fingers brush against cold metal beneath the silt—a cache of coins from a forgotten dynasty.",
                             effects: [{ type: "gain_gold", value: 40 }]
                         }
                     },
                     {
                         condition: { type: "random", chance: 0.25 },
                         result: {
-                            description: "TODO",
+                            description: "As you reach for a glint of gold, a cold shiver climbs your spine. You have disturbed a slumber that was meant to be eternal.",
                             effects: [{ type: "gain_curse" }] // TODO: implement curse card
                         }
                     },
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Amidst the rubble, you unearth an object that hums with a faint, otherworldly resonance.",
                             effects: [{ type: "offer_relic", count: 1, pick: 1 }] // TODO: implement offer UI
                         }
                     }
@@ -331,7 +331,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "has_merchandise" },
                         result: {
-                            description: "TODO",
+                            description: "You lay a mundane offering upon the cracked marble. The altar flares with a pale luminescence, transmuting your tribute into something... greater.",
                             effects: [
                                 { type: "lose_merch_random" },
                                 { type: "gain_merch_upgrade_rarity" } // TODO: implement rarity upgrade
@@ -341,7 +341,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "The altar remains cold and indifferent. It demands a physical sacrifice you do not currently possess.",
                             effects: [{ type: "default" }]
                         }
                     }
@@ -353,7 +353,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "has_consumable_effect", id: "illuminate" },
                         result: {
-                            description: "TODO",
+                            description: "You offer the dead a final, cleansing flame. As the pyre consumes the remains, a single, pristine curiosity is left behind in the ashes.",
                             effects: [
                                 { type: "use_consumable", id: "torch" },
                                 { type: "offer_merchandise", count: 1, pick: 1 } // TODO: implement offer UI
@@ -363,7 +363,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Desecrating the dead for mere scrap is a stain upon the soul. The shadows of the fallen cling to you as you rifle through their pockets.",
                             effects: [{ type: "gain_curse" }] // TODO: implement curse card
                         }
                     }
@@ -382,8 +382,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "BANG?!!",
+        description: "Your journey comes to a temporary halt as your ride is dismantled",
         options: [
             {
                 label: "Inspect the wreckage.",
@@ -391,7 +391,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "has_consumable_effect", id: "wagon_fix" },
                         result: {
-                            description: "TODO",
+                            description: "The repairs are complete, but the road has left you a parting gift. That bone-jarring bump was no stone, but a displaced bundle of random sundries ripe for the taking.",
                             effects: [
                                 { type: "use_consumable", id: "wagon_fix" },
                                 { type: "offer_merchandise", count: 1, pick: 1 } // TODO: implement offer UI
@@ -401,7 +401,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "A charisatic rogue materializes from the brush, peddling spurious repairs for a steep price. You surrender your gold to his gilded lies, only to find the craftsmanship as hollow as his smile.",
                             effects: [{ type: "lose_gold", value: 40 }]
                         }
                     }
@@ -413,7 +413,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Idle hands and a waiting heart deplete your stores and drain your gold. Eventually, the silence is broken by a passing peddler, who lays bare his inventory to satisfy your needs.",
                             effects: [
                                 { type: "lose_food", value: 1 },
                                 { type: "lose_gold", value: 5 },
@@ -436,8 +436,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "???",
+        description: "You pause as the figure uncoils from the dark, a silent question rising in your mind: is this a soul in need of grace, or a snare set for the righteous?",
         options: [
             {
                 label: "Ignore them and keep walking.",
@@ -445,7 +445,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "You left the mysterious figure behind",
                             effects: [{ type: "default" }]
                         }
                     }
@@ -457,14 +457,14 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "random", chance: 0.5 },
                         result: {
-                            description: "TODO",
+                            description: "You have looked upon the Sun of Justice, and your soul feels both heavy with truth and light as a prayer.",
                             effects: [{ type: "offer_legendary", pick: 1 }] // TODO: implement legendary offer (relic or merch)
                         }
                     },
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "You have bartered glances with the Architect of Ruin, and the shadows you once feared now feel like your own.",
                             effects: [{ type: "gain_curse_forced" }] // TODO: implement forced gambit relic
                         }
                     }
@@ -485,8 +485,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "Van Gogh",
+        description: "An artisan seeks a contemporary of refined vision. Will you challenge his valuation of the realm’s most evocative masterpieces?",
         // TODO: implement item_value_comparison minigame
         // Win (art category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
         // Win (non-art): gain random same rarity merch as submitted item
@@ -505,7 +505,7 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
+        title: "Gordon Ramsey",
         description: "A chef seeks a peer of the palate. Will you challenge his valuation of the world’s finest aromatics?",
         // TODO: implement item_value_comparison minigame
         // Win (spice category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
@@ -525,7 +525,7 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "The Scholar",
+        title: "Sun Tzu",
         description: "A scholar approaches, seeking a rival in discernment. Dare you challenge his valuation of the world's curiosities?",
         // TODO: implement item_value_comparison minigame
         // Win (literature category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
@@ -545,7 +545,7 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "The Jeweler",
+        title: "Tiffany",
         description: "A jeweler arrives, seeking a rival of merit. Dare you test your intuition in a game of gilded stakes?",
         // TODO: implement item_value_comparison minigame
         // Win (jewelry category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
