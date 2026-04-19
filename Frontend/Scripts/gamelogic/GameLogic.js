@@ -6,7 +6,7 @@ import { ENCOUNTERS } from './Encounters.js'
 // =======
 // Configs
 // =======
-const B_GOLD = 100
+const B_GOLD = 10000
 const B_FOOD = 10
 const B_MERCH_DECK = 6
 const B_CONS_DECK = 3
@@ -110,8 +110,9 @@ const gameObject = {
         this._notify()
     },
     addConsumable(consumableId) {
-        if (!CONSUMABLES[consumableId]) return
-        this.player.consumables.push({ ...CONSUMABLES[consumableId] })
+        const item = CONSUMABLES[consumableId] ?? STARTER_ITEMS[consumableId]
+        if (!item) return
+        this.player.consumables.push({ ...item })
         this._notify()
     },
     useConsumable(consumableId) {
