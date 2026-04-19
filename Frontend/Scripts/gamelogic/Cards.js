@@ -50,7 +50,7 @@ export const CARDS = {
         rarity: "",
         description: "Staple grain. Part of the Farmland Goods set."
     },
-        wool: {
+    wool: {
         id: "wool",
         type: "merchandise",
         name: "Wool",

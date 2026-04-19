@@ -285,3 +285,23 @@ export function initGame(selectedRelic, selectedConsumable) {
 
     gameObject._notify()
 }
+
+export function checkLoseCondition(gameObject) {
+    const cheapest = Math.min(
+        ...gameObject.gameState.currentCheckpoint.pathOptions.map(o => o.cost)
+    )
+    const liquidValue = calculateMerchValue(gameObject)
+    const effectiveFood = gameObject.player.food + liquidValue
+    return effectiveFood < cheapest
+}
+
+export function calculateMerchValue(gameObject) {
+    return gameObject.player.merchandise.reduce((total, card) => {
+        const set = card.set ? SETS[card.set] : null
+        const setComplete = set && set.cards.every(id => 
+            gameObject.player.merchandise.some(m => m.id === id)
+        )
+        const bonus = setComplete ? set.sellBonus : 1
+        return total + (card.baseValue * bonus)
+    }, 0)
+}
