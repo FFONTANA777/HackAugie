@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Travelling Merchant</title>
+  <link rel="stylesheet" href="/Frontend/Scripts/styles/main.css" />
+  <style>
+    .board-bg {
+      position: fixed;
+      inset: 0;
+      background-image: url('/Frontend/public/background/background_2.png');
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+    }
+
+    .board-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1;
+    }
+
+    .board-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Silkscreen', serif;
+      color: #f0e6c8;
+      overflow-y: auto;
+      padding-bottom: 40px;
+    }
+
+    /* HUD */
+    #hud {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 24px;
+      background: rgba(0, 0, 0, 0.7);
+      border-bottom: 2px solid #6b4f2a;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .hud-left, .hud-right {
+      display: flex;
+      gap: 20px;
+    }
+
+    .hud-item { color: #f0e6c8; }
+
+    /* Section titles */
+    .section-title {
+      font-size: 13px;
+      color: #a88c5a;
+      letter-spacing: 3px;
+      margin: 32px 0 16px;
+      text-align: center;
+    }
+
+    .reroll-info {
+      font-size: 11px;
+      color: #6b4f2a;
+      margin-top: -10px;
+      margin-bottom: 16px;
+    }
+
+    /* Cards row */
+    .cards-row {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Card */
+    .card {
+      width: 160px;
+      background: rgba(20, 14, 6, 0.85);
+      border: 2px solid #6b4f2a;
+      padding: 16px 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+      text-align: center;
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: #c8963c;
+      transform: translateY(-4px);
+    }
+
+    .card.selected {
+      border-color: #e0aa50;
+      background: rgba(40, 28, 8, 0.95);
+    }
+
+    .card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      color: #e0aa50;
+      font-size: 12px;
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .card-name {
+      font-size: 12px;
+      color: #f0e6c8;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 10px;
+      color: #a88c5a;
+      line-height: 1.5;
+    }
+
+    .card-value {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #c8963c;
+    }
+
+    /* Relic card */
+    .card.relic {
+      border-color: #4a3a6b;
+    }
+
+    .card.relic:hover {
+      border-color: #9b7fd4;
+    }
+
+    .card.relic.selected {
+      border-color: #c8a0ff;
+      background: rgba(30, 18, 50, 0.95);
+    }
+
+    .card.relic.selected::after {
+      color: #c8a0ff;
+    }
+
+    /* Reroll button */
+    .reroll-btn {
+      margin-top: 20px;
+      padding: 10px 28px;
+      font-family: 'Silkscreen', serif;
+      font-size: 12px;
+      color: #f0e6c8;
+      background: transparent;
+      border: 1px solid #6b4f2a;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .reroll-btn:hover:not(:disabled) {
+      border-color: #c8963c;
+      color: #c8963c;
+    }
+
+    .reroll-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Confirm button */
+    .confirm-btn {
+      margin-top: 36px;
+      padding: 14px 48px;
+      font-family: 'Silkscreen', serif;
+      font-size: 16px;
+      color: #1a1209;
+      background-color: #c8963c;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .confirm-btn.ready {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .confirm-btn.ready:hover {
+      background-color: #e0aa50;
+      transform: scale(1.03);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="board-bg"></div>
+  <div class="board-overlay"></div>
+
+  <div class="board-content">
+
+    <!-- HUD -->
+    <div id="hud">
+    <div class="hud-left">
+        <span class="hud-item">💰 <span id="hud-gold">0</span></span>
+        <span class="hud-item">🍞 <span id="hud-food">0</span></span>
+    </div>
+    <div class="hud-right" id="inv-trigger" title="Click to open inventory">
+        <span class="hud-item">📦 <span id="hud-merch">0</span>/<span id="hud-merch-max">0</span></span>
+        <span class="hud-item">🎒 <span id="hud-cons">0</span>/<span id="hud-cons-max">0</span></span>
+        <span class="hud-item">💎 <span id="hud-relics">0</span>/<span id="hud-relics-max">0</span></span>
+        <span class="inv-hint">▼</span>
+    </div>
+    </div>
+
+    <!-- Starter Items -->
+    <div class="section-title">CHOOSE YOUR STARTER ITEM</div>
+    <div class="reroll-info" id="item-reroll-info">1 reroll remaining</div>
+    <div class="cards-row" id="starter-cards"></div>
+    <button class="reroll-btn" id="item-reroll-btn" onclick="rerollItems()">↺ REROLL ITEMS</button>
+
+    <!-- Relics -->
+    <div class="section-title">CHOOSE YOUR STARTING RELIC</div>
+    <div class="reroll-info" id="relic-reroll-info">1 reroll remaining</div>
+    <div class="cards-row" id="relic-cards"></div>
+    <button class="reroll-btn" id="relic-reroll-btn" onclick="rerollRelics()">↺ REROLL RELICS</button>
+
+    <!-- Confirm -->
+    <button class="confirm-btn" id="confirm-btn" onclick="confirmSelection()">BEGIN JOURNEY</button>
+
+  </div>
+
+  <audio id="bg-music" loop>
+    <source src="/Frontend/public/sounds/medieval-folk-music.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script type="module">
+    import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
+    import { CARDS } from '/Frontend/Scripts/gamelogic/Cards.js'
+    import { STARTER_ITEMS } from '/Frontend/Scripts/gamelogic/Consumables.js'
+    // Inventory
+    let inventoryOpen = false
+    let activeTab = 'merchandise'
+
+    const panel = document.getElementById('inventory-panel')
+    const hudRight = document.querySelector('.hud-right')
+
+    hudRight.addEventListener('click', () => {
+    inventoryOpen = !inventoryOpen
+    panel.classList.toggle('open', inventoryOpen)
+    if (inventoryOpen) renderInventory()
+    })
+
+    // close when clicking outside
+    document.addEventListener('click', (e) => {
+    if (inventoryOpen && !panel.contains(e.target) && !hudRight.contains(e.target)) {
+        inventoryOpen = false
+        panel.classList.remove('open')
+    }
+    })
+
+    window.switchTab = function (tab) {
+    activeTab = tab
+    document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'))
+    event.target.classList.add('active')
+    renderInventory()
+    }
+
+    function renderInventory() {
+    const grid = document.getElementById('inv-grid')
+    grid.innerHTML = ''
+
+    let items = []
+    let type = ''
+
+    if (activeTab === 'merchandise') {
+        items = gameObject.player.merchandise
+        type = 'merchandise'
+    } else if (activeTab === 'consumables') {
+        items = gameObject.player.consumables
+        type = 'consumable'
+    } else {
+        items = gameObject.player.relic
+        type = 'relic'
+    }
+
+    if (items.length === 0) {
+        grid.innerHTML = `<div class="inv-empty">nothing here yet</div>`
+        return
+    }
+
+    items.forEach(card => {
+        const div = document.createElement('div')
+        div.className = `inv-card ${type}`
+        div.innerHTML = `
+        <div class="inv-card-icon">${card.icon ?? '📦'}</div>
+        <div class="inv-card-name">${card.name}</div>
+        <div class="inv-card-desc">${card.description ?? ''}</div>
+        ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
+        `
+        grid.appendChild(div)
+    })
+    }
+
+    // re-render inventory if open when state changes
+    gameObject.subscribe(() => {
+    if (inventoryOpen) renderInventory()
+    })
+
+    // autoplay on first click
+    const music = document.getElementById('bg-music')
+    document.addEventListener('click', () => music.play(), { once: true })
+
+    // update HUD
+    function updateHUD() {
+      document.getElementById('hud-gold').textContent = gameObject.player.gold
+      document.getElementById('hud-food').textContent = gameObject.player.food
+      document.getElementById('hud-merch').textContent = gameObject.player.merchandise.length
+      document.getElementById('hud-merch-max').textContent = gameObject.player.decks.merchandise
+      document.getElementById('hud-cons').textContent = gameObject.player.consumables.length
+      document.getElementById('hud-cons-max').textContent = gameObject.player.decks.consumables
+      document.getElementById('hud-relics').textContent = gameObject.player.relic.length
+      document.getElementById('hud-relics-max').textContent = gameObject.player.decks.relics
+    }
+    gameObject.subscribe(updateHUD)
+    updateHUD()
+
+    
+    // split cards by type
+    const allCards = Object.values(CARDS)
+    const merchCards = allCards.filter(c => c.type === 'merchandise')
+    const relicCards = allCards.filter(c => c.type === 'relic')
+    const starterItems = Object.values(STARTER_ITEMS)
+
+    // reroll state
+    let itemRerolls = 1
+    let relicRerolls = 1
+    let selectedItem = null
+    let selectedRelic = null
+    let currentItems = []
+    let currentRelics = []
+
+    function getRandom(arr, count) {
+      const shuffled = [...arr].sort(() => Math.random() - 0.5)
+      return shuffled.slice(0, count)
+    }
+
+    function checkConfirm() {
+      const btn = document.getElementById('confirm-btn')
+      if (selectedItem && selectedRelic) {
+        btn.classList.add('ready')
+      } else {
+        btn.classList.remove('ready')
+      }
+    }
+
+    function renderCards(cards, containerId, type) {
+      const container = document.getElementById(containerId)
+      container.innerHTML = ''
+      cards.forEach(card => {
+        const div = document.createElement('div')
+        div.className = `card ${type}`
+        div.dataset.id = card.id
+        div.innerHTML = `
+          <div class="card-icon">${card.icon ?? '📦'}</div>
+          <div class="card-name">${card.name}</div>
+          <div class="card-desc">${card.description ?? ''}</div>
+          ${card.value ? `<div class="card-value">💰 ${card.value}g</div>` : ''}
+        `
+        div.addEventListener('click', () => selectCard(div, card, type))
+        container.appendChild(div)
+      })
+    }
+
+    function selectCard(el, card, type) {
+      const container = el.parentElement
+      container.querySelectorAll('.card').forEach(c => c.classList.remove('selected'))
+      el.classList.add('selected')
+      if (type === 'merchandise') {
+        selectedItem = card
+      } else {
+        selectedRelic = card
+      }
+      checkConfirm()
+    }
+
+    function renderAll() {
+      currentItems = getRandom(starterItems, 3)
+      currentRelics = getRandom(relicCards, 3)
+      selectedItem = null
+      selectedRelic = null
+      renderCards(currentItems, 'starter-cards', 'merchandise')
+      renderCards(currentRelics, 'relic-cards', 'relic')
+      checkConfirm()
+    }
+
+    window.rerollItems = function () {
+      if (itemRerolls <= 0) return
+      itemRerolls--
+      selectedItem = null
+      document.getElementById('item-reroll-info').textContent =
+        itemRerolls === 0 ? 'no rerolls remaining' : `${itemRerolls} reroll remaining`
+      document.getElementById('item-reroll-btn').disabled = itemRerolls === 0
+      currentItems = getRandom(starterItems, 3)
+      renderCards(currentItems, 'starter-cards', 'merchandise')
+      checkConfirm()
+    }
+
+    window.rerollRelics = function () {
+      if (relicRerolls <= 0) return
+      relicRerolls--
+      selectedRelic = null
+      document.getElementById('relic-reroll-info').textContent =
+        relicRerolls === 0 ? 'no rerolls remaining' : `${relicRerolls} reroll remaining`
+      document.getElementById('relic-reroll-btn').disabled = relicRerolls === 0
+      currentRelics = getRandom(relicCards, 3)
+      renderCards(currentRelics, 'relic-cards', 'relic')
+      checkConfirm()
+    }
+
+    window.confirmSelection = function () {
+      if (!selectedItem || !selectedRelic) return
+      gameObject.addConsumable(selectedItem.id)
+      gameObject.addRelic(selectedRelic.id)
+      window.location.href = '/Frontend/Pages/checkpoint.html'
+    }
+
+    // init
+    renderAll()
+  </script>
+
+     <!-- Inventory Panel -->
+    <div id="inventory-panel">
+    <div class="inv-tabs">
+        <button class="inv-tab active" onclick="switchTab('merchandise')">📦 MERCH</button>
+        <button class="inv-tab" onclick="switchTab('consumables')">🎒 CONSUMABLES</button>
+        <button class="inv-tab" onclick="switchTab('relics')">💎 RELICS</button>
+    </div>
+    <div class="inv-grid" id="inv-grid"></div>
+    </div>
+
+</body>
+</html>
