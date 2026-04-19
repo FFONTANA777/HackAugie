@@ -361,7 +361,20 @@ const gameObject = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                player: { /* same shape as reward */ },
+                player: {
+                    gold: this.player.gold,
+                    food: this.player.food,
+                    merchandise: this.player.merchandise,
+                    consumables: this.player.consumables,
+                    relics: this.player.relic,
+                    buffs: this.player.buffs,
+                    debuffs: this.player.debuffs,
+                    decks: this.player.decks,
+                    sell_count: this.player.sellCount,
+                    towns_visited: this.player.townsVisited,
+                    chosen_set: this.player.chosenSet,
+                    decision_history: this.player.decisionHistory
+                },
                 game_state: {
                     legs_remaining: this.gameState.legsRemaining,
                     current_leg: this.gameState.currentLeg
