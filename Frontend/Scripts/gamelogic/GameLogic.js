@@ -285,74 +285,6 @@ const gameObject = {
     async arriveAtCheckpoint() {
         this.gameState.currentLeg.daysToNextTown = -1
         this.gameState.currentLeg.eventQueue = []
-
-        this.gameState.phase = "checkpoint"
-        this.gameState.legsRemaining -= 1
-        this.player.townsVisited += 1
-
-        // win condition — final sale pass
-        if (this.gameState.legsRemaining === 0) {
-            this.player.merchandise.forEach(card => {
-                this.player.gold += getSellValue(card, this)  
-            })
-            this.player.merchandise = []
-            this.endGame("win")
-            return
-        }
-
-        const shortDensity  = getEventDensity("short")
-        const mediumDensity = getEventDensity("medium")
-        const longDensity   = getEventDensity("long")
-
-        const candidates = generateShopInventoryRandom()
-        const res = await fetch("http://localhost:8000/reward", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                player: {
-                    gold: this.player.gold,
-                    food: this.player.food,
-                    merchandise: this.player.merchandise,
-                    consumables: this.player.consumables,
-                    relics: this.player.relic,
-                    buffs: this.player.buffs,
-                    debuffs: this.player.debuffs,
-                    decks: this.player.decks,
-                    sell_count: this.player.sellCount,
-                    towns_visited: this.player.townsVisited,
-                    chosen_set: this.player.chosenSet,
-                    decision_history: this.player.decisionHistory
-                },
-                candidates: candidates
-            })
-        })
-        const { ranked } = await res.json()
-
-        this.gameState.currentCheckpoint = {
-            pathOptions: [
-                { type: "short",  eventDensity: shortDensity,  cost: calculatePathCost(shortDensity,  this) },
-                { type: "medium", eventDensity: mediumDensity, cost: calculatePathCost(mediumDensity, this) },
-                { type: "long",   eventDensity: longDensity,   cost: calculatePathCost(longDensity,   this) }
-            ],
-            shopInventory: ranked.map(slot => ({
-                ...slot,
-                displayPrice: getBuyPrice(slot.price, this)
-            })),
-            upgradeUsed: false
-            // shopInventory: await generateShopInventoryEngine(this)  // engine version — needs arriveAtCheckpoint to be async
-        }
-
-        if (checkLoseCondition(this)) {
-            this.endGame("lose")
-            return
-        }
-
-        this._notify()
-    },
-
-    async arriveAtCheckpoint() {
-        this.gameState.currentLeg.daysToNextTown = -1
-        this.gameState.currentLeg.eventQueue = []
         this.gameState.phase = "checkpoint"
         this.gameState.legsRemaining -= 1
         this.player.townsVisited += 1
@@ -611,42 +543,6 @@ export function getEventDensity(pathType) {
 export async function initGame(selectedRelic, selectedConsumable) {
     sessionStorage.removeItem('gameState')
 
-    const rawQueue = generateEncounterQueue(pathOption.eventDensity)
-    // Map queue strings to candidate objects with IDs for the conductor
-    const candidates = rawQueue.map((encounterId, i) => ({
-        id: `${encounterId}_${i}`,
-        encounter_id: encounterId,
-        position_hint: i   // original random position — conductor can use or ignore
-    }))
-
-    const res = await fetch("http://localhost:8000/path", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            player: {
-                gold: this.player.gold,
-                food: this.player.food,
-                merchandise: this.player.merchandise,
-                consumables: this.player.consumables,
-                relics: this.player.relic,
-                buffs: this.player.buffs,
-                debuffs: this.player.debuffs,
-                decks: this.player.decks,
-                sell_count: this.player.sellCount,
-                towns_visited: this.player.townsVisited,
-                chosen_set: this.player.chosenSet,
-                decision_history: this.player.decisionHistory
-            },
-            game_state: {
-                legs_remaining: this.gameState.legsRemaining,
-                current_leg: this.gameState.currentLeg
-            },
-            path_type: pathOption.type,
-            candidates: candidates
-        })
-    })
-    const { ranked } = await res.json()
-
     // reset to base state
     gameObject.player.gold = B_GOLD
     gameObject.player.food = B_FOOD
@@ -678,9 +574,49 @@ export async function initGame(selectedRelic, selectedConsumable) {
 
     // start on a medium path, travel cost waived
     const eventDensity = getEventDensity("medium")
+    const rawQueue = generateEncounterQueue(eventDensity)
+    const candidates = rawQueue.map((encounterId, i) => ({
+        id: `${encounterId}_${i}`,
+        encounter_id: encounterId,
+        position_hint: i
+    }))
+
+    try {
+        const res = await fetch("http://localhost:8000/path", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                player: {
+                    gold: gameObject.player.gold,
+                    food: gameObject.player.food,
+                    merchandise: gameObject.player.merchandise,
+                    consumables: gameObject.player.consumables,
+                    relics: gameObject.player.relic,
+                    buffs: gameObject.player.buffs,
+                    debuffs: gameObject.player.debuffs,
+                    decks: gameObject.player.decks,
+                    sell_count: gameObject.player.sellCount,
+                    towns_visited: gameObject.player.townsVisited,
+                    chosen_set: gameObject.player.chosenSet,
+                    decision_history: gameObject.player.decisionHistory
+                },
+                game_state: {
+                    legs_remaining: gameObject.gameState.legsRemaining,
+                    current_leg: gameObject.gameState.currentLeg
+                },
+                path_type: "medium",
+                candidates: candidates
+            })
+        })
+        const { ranked } = await res.json()
+        gameObject.gameState.currentLeg.eventQueue = ranked.map(c => c.encounter_id)
+    } catch (err) {
+        console.error("Conductor /path failed on initGame, falling back to random:", err)
+        gameObject.gameState.currentLeg.eventQueue = rawQueue
+    }
+
     gameObject.gameState.phase = "travelling"
     gameObject.gameState.currentLeg.daysToNextTown = eventDensity
-    gameObject.gameState.currentLeg.eventQueue = generateEncounterQueue(eventDensity)
     gameObject.gameState.currentCheckpoint = null
 
     gameObject._notify()
@@ -692,7 +628,7 @@ export function checkLoseCondition(gameObject) {
     )
     // liquid value — gold player could reasonably raise by selling merchandise
     const liquidGold = gameObject.player.gold + gameObject.player.merchandise.reduce(
-        (sum, card) => sum + getSellValue(card, false, gameObject),
+        (sum, card) => sum + getSellValue(card, gameObject),
         0
     )
     // convert gold to food-equivalent at small_rations rate (10 gold for 3 food)
