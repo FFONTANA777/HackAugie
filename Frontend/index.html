@@ -5,10 +5,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Travelling Merchant</title>
-  <link rel="stylesheet" href="/src/styles/main.css" />
+  <link rel="stylesheet" href="./Scripts/styles/main.css" />
 </head>
 <body>
   <div id="app"></div>
-  <script type="module" src="/src/pages/mainMenu.js"></script>
+
+  <script type="module">
+    import gameObject from './Scripts/gameLogic/GameLogic.js'
+    import renderHUD from './Scripts/components/hud.js'
+
+    const app = document.getElementById('app')
+    app.appendChild(renderHUD())
+
+    // test
+    setTimeout(() => {
+    gameObject.gainGold(50)
+    gameObject.spendFood(3)
+    }, 2000)
+  </script>
 </body>
 </html>
