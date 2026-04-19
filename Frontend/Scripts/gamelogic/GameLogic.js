@@ -276,7 +276,7 @@ const gameObject = {
         this._notify()
     },
 
-    arriveAtCheckpoint() {
+    async arriveAtCheckpoint() {
         this.gameState.currentLeg.daysToNextTown = -1
         this.gameState.currentLeg.eventQueue = []
 
@@ -287,7 +287,7 @@ const gameObject = {
         // win condition — final sale pass
         if (this.gameState.legsRemaining === 0) {
             this.player.merchandise.forEach(card => {
-                this.player.gold += getSellValue(card, true, this)
+                this.player.gold += getSellValue(card, this)  
             })
             this.player.merchandise = []
             this.endGame("win")
@@ -298,13 +298,37 @@ const gameObject = {
         const mediumDensity = getEventDensity("medium")
         const longDensity   = getEventDensity("long")
 
+        const candidates = generateShopInventoryRandom()
+        const res = await fetch("http://localhost:8000/reward", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                player: {
+                    gold: this.player.gold,
+                    food: this.player.food,
+                    merchandise: this.player.merchandise,
+                    consumables: this.player.consumables,
+                    relics: this.player.relic,
+                    buffs: this.player.buffs,
+                    debuffs: this.player.debuffs,
+                    decks: this.player.decks,
+                    sell_count: this.player.sellCount,
+                    towns_visited: this.player.townsVisited,
+                    chosen_set: this.player.chosenSet,
+                    decision_history: this.player.decisionHistory
+                },
+                candidates: candidates
+            })
+        })
+        const { ranked } = await res.json()
+
         this.gameState.currentCheckpoint = {
             pathOptions: [
                 { type: "short",  eventDensity: shortDensity,  cost: calculatePathCost(shortDensity,  this) },
                 { type: "medium", eventDensity: mediumDensity, cost: calculatePathCost(mediumDensity, this) },
                 { type: "long",   eventDensity: longDensity,   cost: calculatePathCost(longDensity,   this) }
             ],
-            shopInventory: generateShopInventoryRandom().map(slot => ({
+            shopInventory: ranked.map(slot => ({
                 ...slot,
                 displayPrice: getBuyPrice(slot.price, this)
             })),
@@ -320,14 +344,37 @@ const gameObject = {
         this._notify()
     },
 
-    startLeg(pathOption) {
+    async startLeg(pathOption) {
         this.clearExpiredEffects()
         this.applyPassiveEffects()
         this.spendFood(pathOption.cost)
 
+        const rawQueue = generateEncounterQueue(pathOption.eventDensity)
+        // Map queue strings to candidate objects with IDs for the conductor
+        const candidates = rawQueue.map((encounterId, i) => ({
+            id: `${encounterId}_${i}`,
+            encounter_id: encounterId,
+            position_hint: i   // original random position — conductor can use or ignore
+        }))
+
+        const res = await fetch("http://localhost:8000/path", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                player: { /* same shape as reward */ },
+                game_state: {
+                    legs_remaining: this.gameState.legsRemaining,
+                    current_leg: this.gameState.currentLeg
+                },
+                path_type: pathOption.type,
+                candidates: candidates
+            })
+        })
+        const { ranked } = await res.json()
+
         this.gameState.phase = "travelling"
         this.gameState.currentLeg.daysToNextTown = pathOption.eventDensity
-        this.gameState.currentLeg.eventQueue = generateEncounterQueue(pathOption.eventDensity)
+        this.gameState.currentLeg.eventQueue = ranked.map(c => c.encounter_id)
         this.gameState.currentCheckpoint = null
 
         this._notify()

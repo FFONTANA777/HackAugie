@@ -22,6 +22,11 @@ DEFAULT_PATH_INTENT = """
 I want each leg of the journey to feel like it has a shape — a beginning,
 a middle, and a payoff — rather than a random sequence of events.
 
+If the player's merchandise inventory is empty, prioritize encounters that
+grant free or discounted merchandise early in the leg. An empty inventory
+severely limits the player's options — getting them something to carry and
+sell should be the first priority before anything else.
+
 Early in a leg, surface encounters that are low-stakes and establish context:
 merchant sightings, weather events, easy trades, flavor moments. These let the
 player settle in and plan.
