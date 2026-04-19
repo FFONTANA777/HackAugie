@@ -344,6 +344,81 @@ const gameObject = {
         this._notify()
     },
 
+    async arriveAtCheckpoint() {
+        this.gameState.currentLeg.daysToNextTown = -1
+        this.gameState.currentLeg.eventQueue = []
+        this.gameState.phase = "checkpoint"
+        this.gameState.legsRemaining -= 1
+        this.player.townsVisited += 1
+
+        if (this.gameState.legsRemaining === 0) {
+            this.player.merchandise.forEach(card => {
+                this.player.gold += getSellValue(card, this)
+            })
+            this.player.merchandise = []
+            this.endGame("win")
+            return
+        }
+
+        const shortDensity  = getEventDensity("short")
+        const mediumDensity = getEventDensity("medium")
+        const longDensity   = getEventDensity("long")
+
+        let shopInventory
+        try {
+            const candidates = generateShopInventoryRandom()
+            const res = await fetch("http://localhost:8000/reward", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    player: {
+                        gold: this.player.gold,
+                        food: this.player.food,
+                        merchandise: this.player.merchandise,
+                        consumables: this.player.consumables,
+                        relics: this.player.relic,
+                        buffs: this.player.buffs,
+                        debuffs: this.player.debuffs,
+                        decks: this.player.decks,
+                        sell_count: this.player.sellCount,
+                        towns_visited: this.player.townsVisited,
+                        chosen_set: this.player.chosenSet,
+                        decision_history: this.player.decisionHistory
+                    },
+                    candidates: candidates
+                })
+            })
+            const { ranked } = await res.json()
+            shopInventory = ranked.map(slot => ({
+                ...slot,
+                displayPrice: getBuyPrice(slot.price, this)
+            }))
+        } catch (err) {
+            console.error("Conductor /reward failed, falling back to random:", err)
+            shopInventory = generateShopInventoryRandom().map(slot => ({
+                ...slot,
+                displayPrice: getBuyPrice(slot.price, this)
+            }))
+        }
+
+        this.gameState.currentCheckpoint = {
+            pathOptions: [
+                { type: "short",  eventDensity: shortDensity,  cost: calculatePathCost(shortDensity,  this) },
+                { type: "medium", eventDensity: mediumDensity, cost: calculatePathCost(mediumDensity, this) },
+                { type: "long",   eventDensity: longDensity,   cost: calculatePathCost(longDensity,   this) }
+            ],
+            shopInventory,
+            upgradeUsed: false
+        }
+
+        if (checkLoseCondition(this)) {
+            this.endGame("lose")
+            return
+        }
+
+        this._notify()
+    },
+
     async startLeg(pathOption) {
         this.clearExpiredEffects()
         this.applyPassiveEffects()
