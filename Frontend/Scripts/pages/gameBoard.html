@@ -247,6 +247,7 @@
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
     import { CARDS } from '/Frontend/Scripts/gamelogic/Cards.js'
     import { STARTER_ITEMS } from '/Frontend/Scripts/gamelogic/Consumables.js'
+    import { RELICS } from '/Frontend/Scripts/gamelogic/Relics.js'
     // Inventory
     let inventoryOpen = false
     let activeTab = 'merchandise'
@@ -340,6 +341,7 @@
     const merchCards = allCards.filter(c => c.type === 'merchandise')
     const relicCards = allCards.filter(c => c.type === 'relic')
     const starterItems = Object.values(STARTER_ITEMS)
+    const allRelics = Object.values(RELICS)
 
     // reroll state
     let itemRerolls = 1
@@ -371,7 +373,7 @@
         div.className = `card ${type}`
         div.dataset.id = card.id
         div.innerHTML = `
-          <div class="card-icon">${card.icon ?? '📦'}</div>
+          <div class="card-icon">${card.icon ?? '�'}</div>
           <div class="card-name">${card.name}</div>
           <div class="card-desc">${card.description ?? ''}</div>
           ${card.value ? `<div class="card-value">💰 ${card.value}g</div>` : ''}
@@ -395,7 +397,7 @@
 
     function renderAll() {
       currentItems = getRandom(starterItems, 3)
-      currentRelics = getRandom(relicCards, 3)
+      currentRelics = getRandom(allRelics, 3)
       selectedItem = null
       selectedRelic = null
       renderCards(currentItems, 'starter-cards', 'merchandise')
@@ -422,7 +424,7 @@
       document.getElementById('relic-reroll-info').textContent =
         relicRerolls === 0 ? 'no rerolls remaining' : `${relicRerolls} reroll remaining`
       document.getElementById('relic-reroll-btn').disabled = relicRerolls === 0
-      currentRelics = getRandom(relicCards, 3)
+      currentRelics = getRandom(allRelics, 3)
       renderCards(currentRelics, 'relic-cards', 'relic')
       checkConfirm()
     }
@@ -431,7 +433,7 @@
       if (!selectedItem || !selectedRelic) return
       gameObject.addConsumable(selectedItem.id)
       gameObject.addRelic(selectedRelic.id)
-      window.location.href = '/Frontend/Pages/checkpoint.html'
+      window.location.href = '/Frontend/Scripts/pages/encounter.html'
     }
 
     // init
