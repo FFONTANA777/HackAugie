@@ -6,7 +6,7 @@ import { ENCOUNTERS } from './Encounters.js'
 // =======
 // Configs
 // =======
-const B_GOLD = 100
+const B_GOLD = 10000
 const B_FOOD = 10
 const B_MERCH_DECK = 6
 const B_CONS_DECK = 3
