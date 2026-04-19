@@ -487,10 +487,32 @@ export const ENCOUNTERS = {
         bg: "TODO",
         title: "Van Gogh",
         description: "An artisan seeks a contemporary of refined vision. Will you challenge his valuation of the realm’s most evocative masterpieces?",
-        // TODO: implement item_value_comparison minigame
-        // Win (art category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
-        // Win (non-art): gain random same rarity merch as submitted item
-        // Lose: lose the selected merchandise submitted to compete
+        options: [
+            {
+                label: "Trade merchandise with them.",
+                outcomes: [
+                    {
+                        condition: { type: "default" },
+                        result: {
+                            description: "Trade merchandise with them.",
+                            effects: [{ type: "open_trade_menu" }] // TODO
+                        }
+                    }
+                ]
+            },
+            {
+                label: "Compete in a value comparison.",
+                outcomes: [
+                    {
+                        condition: { type: "default" },
+                        result: {
+                            description: "Best of luck, put your best foot forward.",
+                            effects: [{ type: "start_minigame", minigame: "item_value_comparison", category: "literature" }]
+                        }
+                    }
+                ]
+            }
+        ]
     },
 
     // ===========
@@ -498,7 +520,7 @@ export const ENCOUNTERS = {
     // ===========
     travelling_chef: {
         id: "travelling_chef",
-        type: "minigame",
+        type: "decision",
         minigame: "item_value_comparison",
         minigameConfig: { category: "spice" },
         displayType: "ENCOUNTER",
@@ -507,10 +529,32 @@ export const ENCOUNTERS = {
         bg: "TODO",
         title: "Gordon Ramsey",
         description: "A chef seeks a peer of the palate. Will you challenge his valuation of the world’s finest aromatics?",
-        // TODO: implement item_value_comparison minigame
-        // Win (spice category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
-        // Win (non-spice): gain random same rarity merch as submitted item
-        // Lose: lose the selected merchandise submitted to compete
+        options: [
+            {
+                label: "Trade merchandise with them.",
+                outcomes: [
+                    {
+                        condition: { type: "default" },
+                        result: {
+                            description: "Trade merchandise with them.",
+                            effects: [{ type: "open_trade_menu" }] // TODO
+                        }
+                    }
+                ]
+            },
+            {
+                label: "Compete in a value comparison.",
+                outcomes: [
+                    {
+                        condition: { type: "default" },
+                        result: {
+                            description: "Best of luck, put your best foot forward.",
+                            effects: [{ type: "start_minigame", minigame: "item_value_comparison", category: "literature" }]
+                        }
+                    }
+                ]
+            }
+        ]
     },
 
     // ===========
@@ -518,7 +562,7 @@ export const ENCOUNTERS = {
     // ===========
     travelling_scholar: {
         id: "travelling_scholar",
-        type: "minigame",
+        type: "decision",
         minigame: "item_value_comparison",
         minigameConfig: { category: "literature" },
         displayType: "ENCOUNTER",
@@ -528,31 +572,31 @@ export const ENCOUNTERS = {
         title: "Sun Tzu",
         description: "A scholar approaches, seeking a rival in discernment. Dare you challenge his valuation of the world's curiosities?",
         options: [
-        {
-            label: "Trade merchandise with them.",
-            outcomes: [
-                {
-                    condition: { type: "default" },
-                    result: {
-                        description: "TODO",
-                        effects: [{ type: "open_trade_menu" }] // TODO
+            {
+                label: "Trade merchandise with them.",
+                outcomes: [
+                    {
+                        condition: { type: "default" },
+                        result: {
+                            description: "Trade merchandise with them.",
+                            effects: [{ type: "open_trade_menu" }] // TODO
+                        }
                     }
-                }
-            ]
-        },
-        {
-            label: "Compete in a value comparison.",
-            outcomes: [
-                {
-                    condition: { type: "default" },
-                    result: {
-                        description: "TODO",
-                        effects: [{ type: "start_minigame", minigame: "item_value_comparison", category: "literature" }]
+                ]
+            },
+            {
+                label: "Compete in a value comparison.",
+                outcomes: [
+                    {
+                        condition: { type: "default" },
+                        result: {
+                            description: "Best of luck, put your best foot forward.",
+                            effects: [{ type: "start_minigame", minigame: "item_value_comparison", category: "literature" }]
+                        }
                     }
-                }
-            ]
-        }
-    ]
+                ]
+            }
+        ]
     },
 
     // ===========
@@ -560,7 +604,7 @@ export const ENCOUNTERS = {
     // ===========
     travelling_jeweler: {
         id: "travelling_jeweler",
-        type: "minigame",
+        type: "decision",
         minigame: "item_value_comparison",
         minigameConfig: { category: "jewelry" },
         displayType: "ENCOUNTER",
@@ -569,10 +613,32 @@ export const ENCOUNTERS = {
         bg: "TODO",
         title: "Tiffany",
         description: "A jeweler arrives, seeking a rival of merit. Dare you test your intuition in a game of gilded stakes?",
-        // TODO: implement item_value_comparison minigame
-        // Win (jewelry category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
-        // Win (non-jewelry): gain random same rarity merch as submitted item
-        // Lose: lose the selected merchandise submitted to compete
+        options: [
+            {
+                label: "Trade merchandise with them.",
+                outcomes: [
+                    {
+                        condition: { type: "default" },
+                        result: {
+                            description: "Trade merchandise with them.",
+                            effects: [{ type: "open_trade_menu" }] // TODO
+                        }
+                    }
+                ]
+            },
+            {
+                label: "Compete in a value comparison.",
+                outcomes: [
+                    {
+                        condition: { type: "default" },
+                        result: {
+                            description: "Best of luck, put your best foot forward.",
+                            effects: [{ type: "start_minigame", minigame: "item_value_comparison", category: "literature" }]
+                        }
+                    }
+                ]
+            }
+        ]
     },
 
     // ===========

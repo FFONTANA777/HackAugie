@@ -147,6 +147,7 @@ const gameObject = {
     },
     addMerchandise(cardId) {
         if (!CARDS[cardId]) return
+        if (this.player.merchandise.length >= this.player.decks.merchandise) return
         this.player.merchandise.push({ ...CARDS[cardId] })
         this._notify()
     },
@@ -158,6 +159,7 @@ const gameObject = {
     addConsumable(consumableId) {
         const item = CONSUMABLES[consumableId] ?? STARTER_ITEMS[consumableId]
         if (!item) return
+        if (this.player.consumables.length >= this.player.decks.consumables) return
         this.player.consumables.push({ ...item })
         this._notify()
     },
@@ -175,6 +177,7 @@ const gameObject = {
     },
     addRelic(relicId) {
         if (!RELICS[relicId]) return
+        if (this.player.relic.length >= this.player.decks.relics) return
         this.player.relic.push({ ...RELICS[relicId] })
         this._notify()
     },
