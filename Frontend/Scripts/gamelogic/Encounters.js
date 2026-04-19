@@ -506,7 +506,7 @@ export const ENCOUNTERS = {
         icon: "TODO",
         bg: "TODO",
         title: "TODO",
-        description: "TODO",
+        description: "A chef seeks a peer of the palate. Will you challenge his valuation of the world’s finest aromatics?",
         // TODO: implement item_value_comparison minigame
         // Win (spice category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
         // Win (non-spice): gain random same rarity merch as submitted item
@@ -525,8 +525,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "The Scholar",
+        description: "A scholar approaches, seeking a rival in discernment. Dare you challenge his valuation of the world's curiosities?",
         // TODO: implement item_value_comparison minigame
         // Win (literature category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
         // Win (non-literature): gain random same rarity merch as submitted item
@@ -545,8 +545,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "The Jeweler",
+        description: "A jeweler arrives, seeking a rival of merit. Dare you test your intuition in a game of gilded stakes?",
         // TODO: implement item_value_comparison minigame
         // Win (jewelry category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
         // Win (non-jewelry): gain random same rarity merch as submitted item
@@ -563,8 +563,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "Abandon Mines",
+        description: "Explore the unknown left behind",
         options: [
             {
                 label: "Explore inside the mines.",
@@ -572,14 +572,14 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "has_consumable_effect", id: "illuminate" },
                         result: {
-                            description: "TODO",
+                            description: "As the light pierces through the darkness, the cast-off bounty of the dark is laid bare.",
                             effects: [{ type: "offer_merchandise", count: 3, pick: 2 }] // TODO: implement offer UI
                         }
                     },
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "As the rusted hinges protest in a discordant shriek, you find an ancient excavator peddling the earth’s secrets in exchange for a few stray morsels.",
                             effects: [{ type: "offer_merchandise", count: 3, pick: 1 }] // TODO: implement offer UI
                         }
                     }
