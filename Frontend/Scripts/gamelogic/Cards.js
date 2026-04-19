@@ -1,7 +1,4 @@
 /* 
-================
-Data Definitions
-================
 RARITY_VALUES:
 rarity: value of this rarity
 
@@ -18,6 +15,7 @@ name: text name display
 cards: list of CARDS key value identifiers
 sellBonus: sell value multiplier
 */ 
+
 export const RARITY_VALUES = {
     common: 15,
     uncommon: 30,
