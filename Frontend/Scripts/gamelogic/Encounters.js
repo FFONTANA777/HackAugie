@@ -250,21 +250,12 @@ export const ENCOUNTERS = {
     fellow_traders: {
         id: "fellow_traders",
         type: "decision",
-<<<<<<< HEAD
-        displayType: "HAZARD",
-        typeClass: "danger",
-        icon: "🌊",
-        bg: "/Frontend/public/background/background_river.png",
-        title: "The Swollen River",
-        description: "The river runs fast and dark, swollen from recent rains. Your horse eyes the crossing nervously. There's no bridge in sight — just churning water and the road on the other side.",
-=======
         displayType: "ENCOUNTER",
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
         title: "TODO",
         description: "TODO",
->>>>>>> e511798436a7fde57331ea362370c3854a9cc6db
         options: [
             {
                 label: "Trade with them.",
