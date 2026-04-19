@@ -248,32 +248,35 @@
     import { CARDS } from '/Frontend/Scripts/gamelogic/Cards.js'
     import { STARTER_ITEMS } from '/Frontend/Scripts/gamelogic/Consumables.js'
     import { RELICS } from '/Frontend/Scripts/gamelogic/Relics.js'
+    import { initGame } from '/Frontend/Scripts/gamelogic/GameLogic.js'
     // Inventory
     let inventoryOpen = false
     let activeTab = 'merchandise'
 
     const panel = document.getElementById('inventory-panel')
-    const hudRight = document.querySelector('.hud-right')
+    const invBtn = document.getElementById('inv-trigger')
 
-    hudRight.addEventListener('click', () => {
-    inventoryOpen = !inventoryOpen
-    panel.classList.toggle('open', inventoryOpen)
-    if (inventoryOpen) renderInventory()
+    invBtn.addEventListener('click', () => {
+      inventoryOpen = !inventoryOpen
+      panel.classList.toggle('open', inventoryOpen)
+      invBtn.classList.toggle('active', inventoryOpen)
+      if (inventoryOpen) renderInventory()
     })
 
     // close when clicking outside
     document.addEventListener('click', (e) => {
-    if (inventoryOpen && !panel.contains(e.target) && !hudRight.contains(e.target)) {
+      if (inventoryOpen && !panel.contains(e.target) && !invBtn.contains(e.target)) {
         inventoryOpen = false
         panel.classList.remove('open')
-    }
+        invBtn.classList.remove('active')
+      }
     })
 
-    window.switchTab = function (tab) {
-    activeTab = tab
-    document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'))
-    event.target.classList.add('active')
-    renderInventory()
+    window.switchTab = function (tab, el) {
+      activeTab = tab
+      document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'))
+      el.classList.add('active')
+      renderInventory()
     }
 
     function renderInventory() {
@@ -429,23 +432,21 @@
       checkConfirm()
     }
 
-    window.confirmSelection = function () {
-      if (!selectedItem || !selectedRelic) return
-      gameObject.addConsumable(selectedItem.id)
-      gameObject.addRelic(selectedRelic.id)
-      window.location.href = '/Frontend/Scripts/pages/encounter.html'
-    }
-
     // init
+    window.confirmSelection = function () {
+        if (!selectedItem || !selectedRelic) return
+        initGame(selectedRelic.id, selectedItem.id)
+        window.location.href = '/Frontend/Scripts/pages/encounter.html'
+    }
     renderAll()
   </script>
 
      <!-- Inventory Panel -->
     <div id="inventory-panel">
     <div class="inv-tabs">
-        <button class="inv-tab active" onclick="switchTab('merchandise')">📦 MERCH</button>
-        <button class="inv-tab" onclick="switchTab('consumables')">🎒 CONSUMABLES</button>
-        <button class="inv-tab" onclick="switchTab('relics')">💎 RELICS</button>
+        <button class="inv-tab active" onclick="switchTab('merchandise', this)">📦 MERCH</button>
+        <button class="inv-tab" onclick="switchTab('consumables', this)">🎒 CONSUMABLES</button>
+        <button class="inv-tab" onclick="switchTab('relics', this)">💎 RELICS</button>
     </div>
     <div class="inv-grid" id="inv-grid"></div>
     </div>

@@ -6,6 +6,10 @@ export const ENCOUNTERS = {
     bandits: {
         id: "bandits",
         type: "decision",
+        displayType: "AMBUSH",
+        typeClass: "danger",
+        icon: "⚔️",
+        bg: "/Frontend/public/backgrounds/bandit.png",
         title: "Survival of the Fittest",
         description: "The sound of snapping twigs precedes a cold realization: you aren't alone on the pass. Rough-looking men emerge from the treeline, their eyes lingering greedily on your heavy crates. They don't want your life—just your livelihood.",
         options: [
@@ -13,14 +17,14 @@ export const ENCOUNTERS = {
                 label: "Hope for the best and make a run for it.",
                 outcomes: [
                     {
-                        condition: { type: "has_consumable_type", id: "weapon" },
+                        condition: { type: "has_consumable_effect", id: "bandit_immunity" },
                         result: {
                             description: "Seeing the gleem of your mighty weapon, they hesitate and call off their pursuit.",
                             effects: [{ type: "default" }]
                         }
                     },
                     {
-                        condition: { type: "has_consumable_id", id: "torch" },
+                        condition: { type: "has_consumable_effect", id: "fire_escape" },
                         result: {
                             description: "Using the threat of your flames, your horse runs faster. You escape but the horse needs extra feed as compensation.",
                             effects: [{ type: "debuff", id: "food", value: 2, duration: "next_leg" }]
@@ -68,6 +72,10 @@ export const ENCOUNTERS = {
     river_crossing: {
         id: "river_crossing",
         type: "decision",
+        displayType: "HAZARD",
+        typeClass: "danger",
+        icon: "🌊",
+        bg: "/Frontend/public/backgrounds/background_river.png",
         title: "The Swollen River",
         description: "The river runs fast and dark, swollen from recent rains. Your horse eyes the crossing nervously. There's no bridge in sight — just churning water and the road on the other side.",
         options: [

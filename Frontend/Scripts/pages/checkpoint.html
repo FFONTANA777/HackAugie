@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Travelling Merchant</title>
+  <link rel="stylesheet" href="/Frontend/Scripts/styles/main.css" />
+  <style>
+
+    /* ============
+       Background
+       ============ */
+    .cp-bg {
+      position: fixed;
+      inset: 0;
+      background-image: url('/Frontend/public/background/villager_in_city.png');
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+    }
+
+    .cp-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 1;
+    }
+
+    /* ============
+       Layout
+       ============ */
+    .cp-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Silkscreen', serif;
+      color: #f0e6c8;
+      overflow-y: auto;
+      padding-bottom: 40px;
+    }
+
+    /* ============
+       HUD
+       ============ */
+    #hud {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 24px;
+      background: rgba(0, 0, 0, 0.7);
+      border-bottom: 2px solid #6b4f2a;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .hud-left { display: flex; gap: 20px; }
+    .hud-item { color: #f0e6c8; }
+
+    .hud-right {
+      cursor: pointer;
+      padding: 4px 8px;
+      border: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .hud-right:hover {
+      border-color: #6b4f2a;
+    }
+
+    .hud-right.active {
+      border-color: #c8963c;
+    }
+
+    .inv-label {
+      font-size: 10px;
+      color: #f0e6c8;
+      letter-spacing: 1px;
+      margin-right: 12px;
+      font-weight: bold;
+    }
+
+    /* ============
+       Page Title
+       ============ */
+    .cp-header {
+      margin-top: 32px;
+      text-align: center;
+    }
+
+    .cp-header h1 {
+      font-size: 24px;
+      color: #f0e6c8;
+      margin-bottom: 6px;
+    }
+
+    .cp-header p {
+      font-size: 10px;
+      color: #6b4f2a;
+      letter-spacing: 3px;
+    }
+
+    /* ============
+       Tabs
+       ============ */
+    .cp-tabs {
+      display: flex;
+      margin-top: 28px;
+      border-bottom: 2px solid #6b4f2a;
+      width: 90%;
+      max-width: 700px;
+    }
+
+    .cp-tab {
+      flex: 1;
+      padding: 12px 0;
+      font-family: 'Silkscreen', serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-align: center;
+      color: #6b4f2a;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .cp-tab:hover    { color: #a88c5a; }
+    .cp-tab.active   { color: #f0e6c8; border-bottom: 2px solid #c8963c; }
+
+    /* ============
+       Tab Panels
+       ============ */
+    .cp-panel {
+      display: none;
+      width: 90%;
+      max-width: 700px;
+      margin-top: 28px;
+    }
+
+    .cp-panel.active { display: block; }
+
+    /* ============
+       Fork / Routes
+       ============ */
+    .routes {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .route-card {
+      flex: 1;
+      min-width: 180px;
+      max-width: 220px;
+      background: rgba(10, 7, 3, 0.92);
+      border: 2px solid #6b4f2a;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+      position: relative;
+    }
+
+    .route-card:hover          { border-color: #c8963c; transform: translateY(-4px); }
+    .route-card.selected       { border-color: #e0aa50; background: rgba(40, 28, 8, 0.95); }
+    .route-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 8px; right: 12px;
+      color: #e0aa50;
+      font-size: 12px;
+    }
+
+    .route-icon   { font-size: 36px; margin-bottom: 12px; }
+    .route-name   { font-size: 14px; color: #f0e6c8; margin-bottom: 12px; }
+
+    .route-stats  { font-size: 10px; color: #a88c5a; line-height: 2; text-align: left; }
+    .route-stats span { color: #c8963c; }
+
+    .route-risk {
+      margin-top: 12px;
+      font-size: 9px;
+      letter-spacing: 2px;
+      padding: 4px 10px;
+      border: 1px solid;
+      display: inline-block;
+    }
+
+    .risk-low    { color: #7ec87e; border-color: #3a6b3a; }
+    .risk-medium { color: #c8c07e; border-color: #6b5f3a; }
+    .risk-high   { color: #c87e7e; border-color: #6b3a3a; }
+
+    .fork-confirm {
+      margin-top: 28px;
+      text-align: center;
+    }
+
+    /* ============
+       Shop
+       ============ */
+    .shop-section {
+      margin-bottom: 32px;
+    }
+
+    .shop-section-title {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: #6b4f2a;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #6b4f2a;
+    }
+
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .shop-item {
+      background: rgba(10, 7, 3, 0.88);
+      border: 1px solid #6b4f2a;
+      padding: 14px 10px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .shop-item:hover { border-color: #c8963c; }
+
+    .shop-item-icon  { font-size: 24px; margin-bottom: 8px; }
+    .shop-item-name  { font-size: 10px; color: #f0e6c8; margin-bottom: 4px; }
+    .shop-item-desc  { font-size: 9px;  color: #a88c5a; margin-bottom: 10px; line-height: 1.5; }
+    .shop-item-price { font-size: 10px; color: #c8963c; margin-bottom: 10px; }
+
+    .buy-btn, .sell-btn {
+      width: 100%;
+      padding: 7px 0;
+      font-family: 'Silkscreen', serif;
+      font-size: 9px;
+      border: 1px solid #6b4f2a;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    .buy-btn {
+      background: transparent;
+      color: #f0e6c8;
+    }
+
+    .buy-btn:hover:not(:disabled) { border-color: #c8963c; color: #c8963c; }
+    .buy-btn:disabled              { opacity: 0.3; cursor: not-allowed; }
+
+    .sell-btn {
+      background: transparent;
+      color: #a88c5a;
+      border-color: #4a3a2a;
+    }
+
+    .sell-btn:hover:not(:disabled) { border-color: #c8963c; color: #c8963c; }
+    .sell-btn:disabled              { opacity: 0.3; cursor: not-allowed; }
+
+    /* Sell merchandise list */
+    .merch-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .merch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 7, 3, 0.88);
+      border: 1px solid #6b4f2a;
+      padding: 10px 16px;
+    }
+
+    .merch-row-info { font-size: 10px; color: #f0e6c8; }
+    .merch-row-sub  { font-size: 9px;  color: #a88c5a; margin-top: 3px; }
+    .merch-row-val  { font-size: 10px; color: #c8963c; margin-right: 12px; }
+
+    .merch-empty {
+      font-size: 10px;
+      color: #6b4f2a;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    /* Shared button */
+    .cp-btn {
+      padding: 12px 40px;
+      font-family: 'Silkscreen', serif;
+      font-size: 13px;
+      color: #1a1209;
+      background-color: #c8963c;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .cp-btn.ready            { opacity: 1; pointer-events: all; }
+    .cp-btn.ready:hover      { background-color: #e0aa50; transform: scale(1.03); }
+
+    .cp-btn-plain {
+      padding: 10px 32px;
+      font-family: 'Silkscreen', serif;
+      font-size: 11px;
+      color: #f0e6c8;
+      background: transparent;
+      border: 1px solid #6b4f2a;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .cp-btn-plain:hover { border-color: #c8963c; color: #c8963c; }
+
+    .feedback {
+      font-size: 10px;
+      color: #7ec87e;
+      margin-top: 8px;
+      min-height: 16px;
+      text-align: center;
+    }
+
+    .feedback.bad { color: #c87e7e; }
+
+  </style>
+</head>
+<body>
+
+  <div class="cp-bg"></div>
+  <div class="cp-overlay"></div>
+
+  <div class="cp-content">
+
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hud-left">
+        <span class="hud-item">💰 <span id="hud-gold">0</span></span>
+        <span class="hud-item">🍞 <span id="hud-food">0</span></span>
+      </div>
+      <div class="hud-right" id="inv-trigger" title="Click to open inventory">
+        <span class="inv-label">INVENTORY</span>
+        <span class="hud-item">📦 <span id="hud-merch">0</span>/<span id="hud-merch-max">0</span></span>
+        <span class="hud-item">🎒 <span id="hud-cons">0</span>/<span id="hud-cons-max">0</span></span>
+        <span class="hud-item">💎 <span id="hud-relics">0</span>/<span id="hud-relics-max">0</span></span>
+        <span class="inv-hint">▼</span>
+      </div>
+    </div>
+
+    <!-- Inventory Panel -->
+    <div id="inventory-panel">
+      <div class="inv-tabs">
+        <button class="inv-tab active" onclick="switchTab('merchandise', this)">📦 MERCH</button>
+        <button class="inv-tab" onclick="switchTab('consumables', this)">🎒 CONSUMABLES</button>
+        <button class="inv-tab" onclick="switchTab('relics', this)">💎 RELICS</button>
+      </div>
+      <div class="inv-grid" id="inv-grid"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="cp-header">
+      <h1>CHECKPOINT</h1>
+      <p>REST · TRADE · CHOOSE YOUR PATH</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="cp-tabs">
+      <button class="cp-tab active" onclick="switchCpTab('fork', this)">🛤 FORK IN THE ROAD</button>
+      <button class="cp-tab" onclick="switchCpTab('shop', this)">🏪 TOWN SHOP</button>
+    </div>
+
+    <!-- Fork Panel -->
+    <div class="cp-panel active" id="panel-fork">
+      <div class="routes" id="routes-container"></div>
+      <div class="fork-confirm">
+        <div class="feedback" id="fork-feedback"></div>
+        <button class="cp-btn" id="depart-btn" onclick="departOnRoute()">DEPART →</button>
+      </div>
+    </div>
+
+    <!-- Shop Panel -->
+    <div class="cp-panel" id="panel-shop">
+
+      <!-- Buy Food -->
+      <div class="shop-section">
+        <div class="shop-section-title">PROVISIONS</div>
+        <div class="shop-grid">
+
+          <div class="shop-item">
+            <div class="shop-item-icon">🍞</div>
+            <div class="shop-item-name">Bread Loaf</div>
+            <div class="shop-item-desc">Restores 5 food</div>
+            <div class="shop-item-price">💰 15g</div>
+            <button class="buy-btn" onclick="buyItem('food', 5, 15, this)">BUY</button>
+          </div>
+
+          <div class="shop-item">
+            <div class="shop-item-icon">🥩</div>
+            <div class="shop-item-name">Salted Meat</div>
+            <div class="shop-item-desc">Restores 12 food</div>
+            <div class="shop-item-price">💰 30g</div>
+            <button class="buy-btn" onclick="buyItem('food', 12, 30, this)">BUY</button>
+          </div>
+
+          <div class="shop-item">
+            <div class="shop-item-icon">🧺</div>
+            <div class="shop-item-name">Supply Crate</div>
+            <div class="shop-item-desc">Restores 25 food</div>
+            <div class="shop-item-price">💰 55g</div>
+            <button class="buy-btn" onclick="buyItem('food', 25, 55, this)">BUY</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Buy Consumables -->
+      <div class="shop-section">
+        <div class="shop-section-title">CONSUMABLES</div>
+        <div class="shop-grid" id="consumable-shop"></div>
+      </div>
+
+      <!-- Wagon Upgrades -->
+      <div class="shop-section">
+        <div class="shop-section-title">WAGON UPGRADES</div>
+        <div class="shop-grid">
+
+          <div class="shop-item">
+            <div class="shop-item-icon">📦</div>
+            <div class="shop-item-name">Cargo Rack</div>
+            <div class="shop-item-desc">+2 merchandise slots</div>
+            <div class="shop-item-price">💰 80g</div>
+            <button class="buy-btn" id="upgrade-merch-btn" onclick="buyWagonUpgrade('merchandise', 2, 80, this)">BUY</button>
+          </div>
+
+          <div class="shop-item">
+            <div class="shop-item-icon">🎒</div>
+            <div class="shop-item-name">Saddlebag</div>
+            <div class="shop-item-desc">+2 consumable slots</div>
+            <div class="shop-item-price">💰 60g</div>
+            <button class="buy-btn" id="upgrade-cons-btn" onclick="buyWagonUpgrade('consumables', 2, 60, this)">BUY</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Sell Merchandise -->
+      <div class="shop-section">
+        <div class="shop-section-title">SELL MERCHANDISE</div>
+        <div id="merch-sell-list"></div>
+      </div>
+
+      <div class="feedback" id="shop-feedback"></div>
+
+    </div>
+
+  </div>
+
+  <audio id="bg-music" loop>
+    <source src="/Frontend/public/sounds/medieval-folk-music.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script type="module">
+    import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
+
+    // ============
+    // Music
+    // ============
+    const music = document.getElementById('bg-music')
+    document.addEventListener('click', () => music.play(), { once: true })
+
+    // ============
+    // HUD
+    // ============
+    function updateHUD() {
+      document.getElementById('hud-gold').textContent       = gameObject.player.gold
+      document.getElementById('hud-food').textContent       = gameObject.player.food
+      document.getElementById('hud-merch').textContent      = gameObject.player.merchandise.length
+      document.getElementById('hud-merch-max').textContent  = gameObject.player.decks.merchandise
+      document.getElementById('hud-cons').textContent       = gameObject.player.consumables.length
+      document.getElementById('hud-cons-max').textContent   = gameObject.player.decks.consumables
+      document.getElementById('hud-relics').textContent     = gameObject.player.relic.length
+      document.getElementById('hud-relics-max').textContent = gameObject.player.decks.relics
+    }
+    gameObject.subscribe(updateHUD)
+    updateHUD()
+
+    // ============
+    // Inventory
+    // ============
+    const panel  = document.getElementById('inventory-panel')
+    const invBtn = document.getElementById('inv-trigger')
+    let inventoryOpen = false
+    let activeInvTab  = 'merchandise'
+
+    invBtn.addEventListener('click', () => {
+      inventoryOpen = !inventoryOpen
+      panel.classList.toggle('open', inventoryOpen)
+      invBtn.classList.toggle('active', inventoryOpen)
+      if (inventoryOpen) renderInventory()
+    })
+
+    document.addEventListener('click', (e) => {
+      if (inventoryOpen && !panel.contains(e.target) && !invBtn.contains(e.target)) {
+        inventoryOpen = false
+        panel.classList.remove('open')
+        invBtn.classList.remove('active')
+      }
+    })
+
+    window.switchTab = function (tab, el) {
+      activeInvTab = tab
+      document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'))
+      el.classList.add('active')
+      renderInventory()
+    }
+
+    function renderInventory() {
+      const grid = document.getElementById('inv-grid')
+      grid.innerHTML = ''
+      const tabMap = {
+        merchandise: { items: gameObject.player.merchandise, type: 'merchandise' },
+        consumables: { items: gameObject.player.consumables, type: 'consumable'  },
+        relics:      { items: gameObject.player.relic,        type: 'relic'       },
+      }
+      const { items, type } = tabMap[activeInvTab]
+      if (items.length === 0) {
+        grid.innerHTML = `<div class="inv-empty">nothing here yet</div>`
+        return
+      }
+      items.forEach(card => {
+        const div = document.createElement('div')
+        div.className = `inv-card ${type}`
+        div.innerHTML = `
+          <div class="inv-card-icon">${card.icon ?? '📦'}</div>
+          <div class="inv-card-name">${card.name}</div>
+          <div class="inv-card-desc">${card.description ?? ''}</div>
+          ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
+        `
+        grid.appendChild(div)
+      })
+    }
+
+    gameObject.subscribe(() => { if (inventoryOpen) renderInventory() })
+
+    // ============
+    // Checkpoint Tabs
+    // ============
+    window.switchCpTab = function (tab, el) {
+      document.querySelectorAll('.cp-tab').forEach(t => t.classList.remove('active'))
+      document.querySelectorAll('.cp-panel').forEach(p => p.classList.remove('active'))
+      el.classList.add('active')
+      document.getElementById(`panel-${tab}`).classList.add('active')
+    }
+
+    // ============
+    // Fork / Routes
+    // ============
+    const ROUTES = [
+      {
+        id: 'short',
+        icon: '🌿',
+        name: 'SHORT PATH',
+        events: 2,
+        days: 3,
+        foodCost: 6,
+        riskClass: 'risk-low',
+        riskLabel: 'LOW RISK',
+      },
+      {
+        id: 'medium',
+        icon: '🌲',
+        name: 'MEDIUM PATH',
+        events: 4,
+        days: 6,
+        foodCost: 12,
+        riskClass: 'risk-medium',
+        riskLabel: 'MEDIUM RISK',
+      },
+      {
+        id: 'long',
+        icon: '⛰️',
+        name: 'LONG PATH',
+        events: 7,
+        days: 10,
+        foodCost: 20,
+        riskClass: 'risk-high',
+        riskLabel: 'HIGH RISK',
+      },
+    ]
+
+    let selectedRoute = null
+
+    function renderRoutes() {
+      const container = document.getElementById('routes-container')
+      container.innerHTML = ''
+      ROUTES.forEach(route => {
+        const div = document.createElement('div')
+        div.className = 'route-card'
+        div.innerHTML = `
+          <div class="route-icon">${route.icon}</div>
+          <div class="route-name">${route.name}</div>
+          <div class="route-stats">
+            <div>EVENTS &nbsp;<span>${route.events}</span></div>
+            <div>DAYS &nbsp;&nbsp;&nbsp;<span>${route.days}</span></div>
+            <div>FOOD &nbsp;&nbsp;&nbsp;<span>-${route.foodCost}</span></div>
+          </div>
+          <div class="route-risk ${route.riskClass}">${route.riskLabel}</div>
+        `
+        div.addEventListener('click', () => selectRoute(div, route))
+        container.appendChild(div)
+      })
+    }
+
+    function selectRoute(el, route) {
+      document.querySelectorAll('.route-card').forEach(c => c.classList.remove('selected'))
+      el.classList.add('selected')
+      selectedRoute = route
+      document.getElementById('depart-btn').classList.add('ready')
+      document.getElementById('fork-feedback').textContent = ''
+    }
+
+    window.departOnRoute = function () {
+      if (!selectedRoute) return
+      gameObject.update({
+        gameState: {
+          ...gameObject.gameState,
+          phase: 'travelling',
+          currentLeg: {
+            daysToNextTown: selectedRoute.days,
+            eventQueue: Array(selectedRoute.events).fill('encounter'),
+          }
+        }
+      })
+      gameObject.spendFood(selectedRoute.foodCost)
+      window.location.href = '/Frontend/Pages/encounter.html'
+    }
+
+    // ============
+    // Shop — Buy Food
+    // ============
+    window.buyItem = function (stat, amount, cost, btn) {
+      const feedback = document.getElementById('shop-feedback')
+      if (gameObject.player.gold < cost) {
+        showFeedback('not enough gold!', true)
+        return
+      }
+      gameObject.spendGold(cost)
+      if (stat === 'food') gameObject.gainFood(amount)
+      showFeedback(`+${amount} ${stat} purchased`)
+    }
+
+    // ============
+    // Shop — Consumables
+    // ============
+    const SHOP_CONSUMABLES = [
+      { icon: '🧪', name: 'Health Tonic',  desc: 'Restores 8 food on use', price: 25 },
+      { icon: '🗺️', name: 'Treasure Map',  desc: 'Reveals a bonus reward', price: 40 },
+      { icon: '🛡️', name: 'Road Ward',     desc: 'Avoid one bad event',    price: 50 },
+    ]
+
+    function renderShopConsumables() {
+      const grid = document.getElementById('consumable-shop')
+      grid.innerHTML = ''
+      SHOP_CONSUMABLES.forEach(item => {
+        const isFull = gameObject.player.consumables.length >= gameObject.player.decks.consumables
+        const canAfford = gameObject.player.gold >= item.price
+        const div = document.createElement('div')
+        div.className = 'shop-item'
+        div.innerHTML = `
+          <div class="shop-item-icon">${item.icon}</div>
+          <div class="shop-item-name">${item.name}</div>
+          <div class="shop-item-desc">${item.desc}</div>
+          <div class="shop-item-price">💰 ${item.price}g</div>
+          <button class="buy-btn" ${isFull || !canAfford ? 'disabled' : ''}
+            onclick="buyConsumable('${item.name}', ${item.price}, this)">
+            ${isFull ? 'FULL' : 'BUY'}
+          </button>
+        `
+        grid.appendChild(div)
+      })
+    }
+
+    window.buyConsumable = function (name, price, btn) {
+      if (gameObject.player.gold < price) { showFeedback('not enough gold!', true); return }
+      if (gameObject.player.consumables.length >= gameObject.player.decks.consumables) {
+        showFeedback('consumable deck is full!', true); return
+      }
+      gameObject.spendGold(price)
+      gameObject.player.consumables.push({ name, icon: '🧪', description: '' })
+      gameObject.update({})
+      showFeedback(`${name} purchased!`)
+      renderShopConsumables()
+    }
+
+    // ============
+    // Shop — Wagon Upgrades
+    // ============
+    window.buyWagonUpgrade = function (deck, amount, cost, btn) {
+      if (gameObject.player.gold < cost) { showFeedback('not enough gold!', true); return }
+      gameObject.spendGold(cost)
+      gameObject.player.decks[deck] += amount
+      gameObject.update({})
+      btn.disabled = true
+      btn.textContent = 'UPGRADED'
+      showFeedback(`wagon upgraded! +${amount} ${deck} slots`)
+    }
+
+    // ============
+    // Shop — Sell Merchandise
+    // ============
+    function renderMerchSell() {
+      const list = document.getElementById('merch-sell-list')
+      list.innerHTML = ''
+
+      if (gameObject.player.merchandise.length === 0) {
+        list.innerHTML = `<div class="merch-empty">no merchandise to sell</div>`
+        return
+      }
+
+      gameObject.player.merchandise.forEach(card => {
+        const row = document.createElement('div')
+        row.className = 'merch-row'
+        row.innerHTML = `
+          <div>
+            <div class="merch-row-info">${card.icon ?? '📦'} ${card.name}</div>
+            <div class="merch-row-sub">${card.description ?? ''}</div>
+          </div>
+          <div style="display:flex;align-items:center">
+            <div class="merch-row-val">💰 ${card.value ?? 0}g</div>
+            <button class="sell-btn" onclick="sellMerch('${card.id}', ${card.value ?? 0}, this)">SELL</button>
+          </div>
+        `
+        list.appendChild(row)
+      })
+    }
+
+    window.sellMerch = function (id, value, btn) {
+      gameObject.removeMerchandise(id)
+      gameObject.gainGold(value)
+      showFeedback(`sold for ${value}g!`)
+      renderMerchSell()
+    }
+
+    // ============
+    // Feedback
+    // ============
+    function showFeedback(msg, isBad = false) {
+      const el = document.getElementById('shop-feedback')
+      el.textContent = msg
+      el.className = `feedback ${isBad ? 'bad' : ''}`
+      setTimeout(() => { el.textContent = '' }, 2500)
+    }
+
+    // ============
+    // Subscribe & Re-render Shop on State Change
+    // ============
+    gameObject.subscribe(() => {
+      renderMerchSell()
+      renderShopConsumables()
+    })
+
+    // ============
+    // Init
+    // ============
+    renderRoutes()
+    renderShopConsumables()
+    renderMerchSell()
+
+  </script>
+
+</body>
+</html>

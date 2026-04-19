@@ -111,6 +111,14 @@ export const CONSUMABLES = {
         baseValue: 40,
         description: "Scare off bandits for the rest of this leg, or burn through a tree hazard.",
         effect: ["bandit_leg_immunity", "clear_tree"]
+    },
+    torch: {
+        id: "torch",
+        type: "consumable",
+        name: "Torch",
+        baseValue: 20,
+        description: "Frighten off pursuers with fire, or light your way through a dark hazard.",
+        effect: ["fire_escape", "illuminate_path"]
     }
 }
 
