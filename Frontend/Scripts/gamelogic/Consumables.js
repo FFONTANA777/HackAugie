@@ -152,7 +152,7 @@ export const STARTER_ITEMS = {
         type: "consumable",
         source: "starter",
         name: "Back to Basics",
-        description: "Wagon cannot be upgraded. All sell prices permanently increased.",
+        description: "Wagon cannot be upgraded. All sell prices permanently increased by 15%.",
         effect: "no_upgrades_bonus"
     },
     crocea_mors: {
