@@ -7,6 +7,7 @@ FastAPI server exposing two Conductor instances:
 
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Any
