@@ -53,17 +53,38 @@ Return ONLY a JSON array with no preamble or explanation:
 """
 
     def _call_llm(self, prompt: str) -> str:
-        # TODO: replace with Gemini API call
-        # Example structure for Gemini:
-        # url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
-        # headers = {"Content-Type": "application/json"}
-        # body = {
-        #     "contents": [{"parts": [{"text": prompt}]}],
-        #     "generationConfig": {"temperature": 0.2}
-        # }
-        # response = httpx.post(url, headers=headers, params={"key": self.api_key}, json=body)
-        # return response.json()["candidates"][0]["content"]["parts"][0]["text"]
-        raise NotImplementedError("LLM call not yet implemented")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
+        headers = {"Content-Type": "application/json"}
+        body = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "temperature": 0.2,
+                "responseMimeType": "application/json" # Forces strict JSON output
+            }
+        }
+
+        try:
+            # Using httpx for the synchronous REST call
+            response = httpx.post(
+                url, 
+                headers=headers, 
+                params={"key": self.api_key}, 
+                json=body,
+                timeout=30.0 # Recommended to prevent hanging on larger prompts
+            )
+            
+            # Catch bad HTTP status codes (e.g., 401 Unauthorized, 429 Rate Limit)
+            response.raise_for_status()
+            
+            # Extract the text payload from the Gemini response structure
+            return response.json()["candidates"][0]["content"]["parts"][0]["text"]
+            
+        except httpx.HTTPStatusError as e:
+            raise RuntimeError(f"Gemini API HTTP Error: {e.response.status_code} - {e.response.text}")
+        except (KeyError, IndexError) as e:
+            raise ValueError(f"Failed to parse Gemini API response structure. Raw response: {response.text}") from e
+        except Exception as e:
+            raise RuntimeError(f"An unexpected error occurred calling the Gemini API: {e}")
 
     def _parse_scores(self, response: str, candidates: list) -> list:
         try:
@@ -260,3 +281,6 @@ class Conductor:
             "outputs": {k: {"type": v["type"].__name__, "description": v["description"]} for k, v in self._outputs.items()},
             "scorer": type(self._scorer).__name__ if self._scorer else None
         }
+    
+# conductor = Conductor(scorer=scorer)
+# scorer = LLMScorer(api_key=api_key, model="gemini-2.0-flash")

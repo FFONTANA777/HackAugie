@@ -118,7 +118,7 @@ export const CONSUMABLES = {
         name: "Torch",
         baseValue: 20,
         description: "Frighten off pursuers with fire, or light your way through a dark hazard.",
-        effect: ["fire_escape", "illuminate_path"]
+        effect: ["fire_escape", "illuminate"]
     }
 }
 
