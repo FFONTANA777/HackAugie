@@ -12,6 +12,7 @@ const B_MERCH_DECK = 6
 const B_CONS_DECK = 3
 const B_RELIC_DECK = 3
 const B_LEGS = 5
+const SAVE_VERSION = 1
 
 const PATH_CONFIGS = {
     short:  { min: 2, max: 3 },
@@ -77,6 +78,7 @@ const gameObject = {
     _notify() {
         this._listeners.forEach(fn => fn(this))
         sessionStorage.setItem('gameState', JSON.stringify({
+            version: SAVE_VERSION,
             player: this.player,
             gameState: this.gameState
         }))
@@ -171,10 +173,10 @@ const gameObject = {
     buyShopSlot(slotIndex) {
         const slot = this.gameState.currentCheckpoint?.shopInventory?.[slotIndex]
         if (!slot || slot.sold) return
-        if (this.player.gold < slot.price) return  // can't afford
+        if (this.player.gold < slot.displayPrice) return  // can't afford
 
         if (slot.type === "food") {
-            this.spendGold(slot.price)
+            this.spendGold(slot.displayPrice)
             this.gainFood(slot.amount)
         } else if (slot.type === "consumable") {
             // deck capacity check — UI should gate this too, but guard here as well
@@ -202,22 +204,27 @@ const gameObject = {
 
         this.gameState.phase = "checkpoint"
         this.gameState.legsRemaining -= 1
+        this.player.townsVisited += 1
 
         // win condition — final sale pass
         if (this.gameState.legsRemaining === 0) {
             this.player.merchandise.forEach(card => {
-                this.player.gold += getSellValue(card, true, this.player.merchandise)
+                this.player.gold += getSellValue(card, true, this)
             })
             this.player.merchandise = []
             this.endGame("win")
             return
         }
 
+        const shortDensity  = getEventDensity("short")
+        const mediumDensity = getEventDensity("medium")
+        const longDensity   = getEventDensity("long")
+
         this.gameState.currentCheckpoint = {
             pathOptions: [
-                { type: "short",  eventDensity: getEventDensity("short"),  cost: calculatePathCost(getEventDensity("short"),  this) },
-                { type: "medium", eventDensity: getEventDensity("medium"), cost: calculatePathCost(getEventDensity("medium"), this) },
-                { type: "long",   eventDensity: getEventDensity("long"),   cost: calculatePathCost(getEventDensity("long"),   this) }
+                { type: "short",  eventDensity: shortDensity,  cost: calculatePathCost(shortDensity,  this) },
+                { type: "medium", eventDensity: mediumDensity, cost: calculatePathCost(mediumDensity, this) },
+                { type: "long",   eventDensity: longDensity,   cost: calculatePathCost(longDensity,   this) }
             ],
             shopInventory: generateShopInventoryRandom().map(slot => ({
                 ...slot,
@@ -265,9 +272,19 @@ const gameObject = {
 // rehydrate on load
 const _saved = sessionStorage.getItem('gameState')
 if (_saved) {
-    const _parsed = JSON.parse(_saved)
-    gameObject.player = _parsed.player
-    gameObject.gameState = _parsed.gameState
+    try {
+        const _parsed = JSON.parse(_saved)
+        if (_parsed.version === SAVE_VERSION) {
+            gameObject.player = _parsed.player
+            gameObject.gameState = _parsed.gameState
+        } else {
+            // version mismatch — drop the stale save
+            sessionStorage.removeItem('gameState')
+        }
+    } catch (e) {
+        console.warn('Failed to rehydrate save, starting fresh:', e)
+        sessionStorage.removeItem('gameState')
+    }
 }
 
 export default gameObject
@@ -324,7 +341,10 @@ export function initGame(selectedRelic, selectedConsumable) {
     gameObject.player.buffs = []
     gameObject.player.debuffs = []
     gameObject.player.decisionHistory = []
-    gameObject.player.legsRemaining = B_LEGS
+    gameObject.player.sellCount = 0
+    gameObject.player.townsVisited = 0
+    gameObject.player.chosenSet = null
+    gameObject.gameState.legsRemaining = B_LEGS
     gameObject.player.decks = {
         merchandise: B_MERCH_DECK,
         consumables: B_CONS_DECK,
@@ -355,20 +375,15 @@ export function checkLoseCondition(gameObject) {
     const cheapest = Math.min(
         ...gameObject.gameState.currentCheckpoint.pathOptions.map(o => o.cost)
     )
-    const liquidValue = calculateMerchValue(gameObject)
-    const effectiveFood = gameObject.player.food + liquidValue
+    // liquid value — gold player could reasonably raise by selling merchandise
+    const liquidGold = gameObject.player.gold + gameObject.player.merchandise.reduce(
+        (sum, card) => sum + getSellValue(card, false, gameObject),
+        0
+    )
+    // convert gold to food-equivalent at small_rations rate (10 gold for 3 food)
+    const foodFromGold = Math.floor(liquidGold / (10 / 3))
+    const effectiveFood = gameObject.player.food + foodFromGold
     return effectiveFood < cheapest
-}
-
-export function calculateMerchValue(gameObject) {
-    return gameObject.player.merchandise.reduce((total, card) => {
-        const set = card.set ? SETS[card.set] : null
-        const setComplete = set && set.cards.every(id => 
-            gameObject.player.merchandise.some(m => m.id === id)
-        )
-        const bonus = setComplete ? set.sellBonus : 1
-        return total + (card.baseValue * bonus)
-    }, 0)
 }
 
 // Shop
