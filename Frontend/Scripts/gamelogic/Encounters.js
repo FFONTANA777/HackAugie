@@ -45,14 +45,14 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "has_consumable_effect", id: "fire_escape" },
                         result: {
-                            description: "TODO",
+                            description: "Your horse is scared of fire and your torch burns bright and near its rear. The speed picks up and you escape, but at what cost?",
                             effects: [{ type: "debuff", id: "food_cost", value: 2, duration: "next_leg" }]
                         }
                     },
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Unfortunately, the bandits are lighter than your cargo, enabling a fast encirclement around you.",
                             effects: [
                                 { type: "lose_merch_random" },
                                 { type: "lose_gold", value: 40 }
@@ -67,7 +67,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "has_merch_type", id: "jewelry" },
                         result: {
-                            description: "TODO",
+                            description: "With great persuasion and the bandit leader's anniversity coming up, you manage to make a sale instead of getting robbed, bravo.",
                             effects: [
                                 { type: "lose_merch_random", id: "jewelry" },
                                 { type: "gain_gold", value: 80 }
@@ -77,7 +77,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Your charisma needs work, and your inventory a new make over for it is lacking. Your liquidity takes a hit.",
                             effects: [{ type: "lose_gold", value: 40 }]
                         }
                     }
@@ -96,8 +96,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "The Scarcity of Charity",
+        description: "You stumble upon a weak and feeble traveler. He seems headed in the same direction and you. Your rations are plentiful, but will your generousity be as well?",
         options: [
             {
                 label: "Give them 2 food.",
@@ -105,7 +105,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Your charity brings upon you great karma, rejoice.",
                             effects: [
                                 { type: "lose_food", value: 2 },
                                 { type: "offer_merchandise", count: 3, pick: 2 } // TODO: implement offer UI
@@ -120,7 +120,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Feeble, but now rich is the old man. He is greatful to an extent.",
                             effects: [
                                 { type: "lose_gold", value: 30 },
                                 { type: "offer_relic", count: 3, pick: 1 } // TODO: implement offer UI
@@ -135,7 +135,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "A chaffeur for the feeble, how noble. You find out he's quite big in the commerce world, lucky.",
                             effects: [{ type: "buff", id: "shop_discount", value: 0.75, duration: "next_checkpoint" }]
                         }
                     }
@@ -147,7 +147,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Business is life, and you life is business.",
                             effects: [{ type: "default" }]
                         }
                     }
@@ -175,21 +175,21 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "random_split", branches: [0.25, 0.25, 0.50], index: 0 },
                         result: {
-                            description: "TODO",
+                            description: "Your skills shine through, richs and fortune.",
                             effects: [{ type: "offer_merchandise", count: 3, pick: 1 }]
                         }
                     },
                     {
                         condition: { type: "random_split", branches: [0.25, 0.25, 0.50], index: 1 },
                         result: {
-                            description: "TODO",
+                            description: "Your skills shine through, fortunes and riches.",
                             effects: [{ type: "offer_relic", count: 3, pick: 1 }]
                         }
                     },
                     {
                         condition: { type: "random_split", branches: [0.25, 0.25, 0.50], index: 2 },
                         result: {
-                            description: "TODO",
+                            description: "An unfortunate and clumsy fall, landing you in the red for today.",
                             effects: [{ type: "lose_gold", value: 25 }]
                         }
                     }
@@ -201,7 +201,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "has_consumable_effect", id: "cross_trees" },
                         result: {
-                            description: "TODO",
+                            description: "Felling a tree to cross a river. You must have business to attent to.",
                             effects: [
                                 { type: "use_consumable", id: "axe" },
                                 { type: "offer_relic", count: 1, pick: 1 },       // TODO: implement offer UI
@@ -212,7 +212,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Attempting to fall the tree with no tools, quite a dream.",
                             effects: [{ type: "default" }]
                         }
                     }
@@ -224,7 +224,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Soggy boots never hurt no one.",
                             effects: [
                                 { type: "lose_gold", value: 30 },
                                 { type: "offer_merchandise_type", category: "art", count: 3, pick: 1 } // TODO: implement offer UI
@@ -246,8 +246,8 @@ export const ENCOUNTERS = {
         typeClass: "TODO",
         icon: "TODO",
         bg: "TODO",
-        title: "TODO",
-        description: "TODO",
+        title: "Opportune Business",
+        description: "Both of you are like minded in business. This chance has the prospects of profit and trade. May conversation land you in the green.",
         options: [
             {
                 label: "Trade with them.",
@@ -255,7 +255,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "Equal footing, equal oppurtunity, equal trade, equal business.",
                             effects: [{ type: "open_trade_menu" }] // TODO: implement trade menu
                         }
                     }
@@ -267,7 +267,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "has_consumable_effect", id: "sleeping_potion" },
                         result: {
-                            description: "TODO",
+                            description: "All cards must be played at the table if there is business involved.",
                             effects: [
                                 { type: "use_consumable", id: "sleeping_potion" },
                                 { type: "steal_merchandise", count: 2 } // TODO: implement steal from trade menu pool
@@ -277,7 +277,7 @@ export const ENCOUNTERS = {
                     {
                         condition: { type: "default" },
                         result: {
-                            description: "TODO",
+                            description: "You look for an upper hand, but find not such advantage.",
                             effects: [{ type: "open_trade_menu" }] // TODO: implement trade menu
                         }
                     }
