@@ -67,6 +67,10 @@ const gameObject = {
     },
     _notify() {
         this._listeners.forEach(fn => fn(this))
+        sessionStorage.setItem('gameState', JSON.stringify({
+            player: this.player,
+            gameState: this.gameState
+        }))
     },
 
     // Player mutations
@@ -225,6 +229,14 @@ const gameObject = {
     },
 }
 
+// rehydrate on load
+const _saved = sessionStorage.getItem('gameState')
+if (_saved) {
+    const _parsed = JSON.parse(_saved)
+    gameObject.player = _parsed.player
+    gameObject.gameState = _parsed.gameState
+}
+
 export default gameObject
 
 export function generateEncounterQueue(eventDensity) {
@@ -251,6 +263,8 @@ export function getEventDensity(pathType) {
 }
 
 export function initGame(selectedRelic, selectedConsumable) {
+    sessionStorage.removeItem('gameState')
+
     // reset to base state
     gameObject.player.gold = B_GOLD
     gameObject.player.food = B_FOOD
@@ -260,6 +274,7 @@ export function initGame(selectedRelic, selectedConsumable) {
     gameObject.player.buffs = []
     gameObject.player.debuffs = []
     gameObject.player.decisionHistory = []
+    gameObject.player.legsRemaining = B_LEGS
     gameObject.player.decks = {
         merchandise: B_MERCH_DECK,
         consumables: B_CONS_DECK,

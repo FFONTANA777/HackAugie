@@ -7,8 +7,12 @@ import { MINIGAMES } from './Minigames.js'
 
 function checkCondition(condition, player) {
     switch (condition.type) {
-        case "has_consumable_type":
-            return player.consumables.some(c => c.type === condition.id)
+        case "has_consumable_effect":
+            return player.consumables.some(c => 
+                Array.isArray(c.effect) 
+                    ? c.effect.includes(condition.id)
+                    : c.effect === condition.id
+            )
 
         case "has_consumable_id":
             return player.consumables.some(c => c.id === condition.id)
