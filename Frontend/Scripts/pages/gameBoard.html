@@ -247,7 +247,7 @@
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
     import { CARDS } from '/Frontend/Scripts/gamelogic/Cards.js'
     import { STARTER_ITEMS } from '/Frontend/Scripts/gamelogic/Consumables.js'
-    import { RELICS } from '/Frontend/Scripts/gamelogic/Relics.js'
+    import { RELICS, getNormalRelics } from '/Frontend/Scripts/gamelogic/Relics.js'
     import { initGame } from '/Frontend/Scripts/gamelogic/GameLogic.js'
     // Inventory
     let inventoryOpen = false
@@ -357,7 +357,7 @@
     const merchCards = allCards.filter(c => c.type === 'merchandise')
     const relicCards = allCards.filter(c => c.type === 'relic')
     const starterItems = Object.values(STARTER_ITEMS)
-    const allRelics = Object.values(RELICS)
+    const allRelics = getNormalRelics().map(id => RELICS[id])
 
     // reroll state
     let itemRerolls = 1
