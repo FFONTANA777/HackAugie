@@ -7,33 +7,6 @@ id: CARDS key value identifier
 type: for deck allocation
 name: text name display
 set: SETS key value identifier
-rarity: base gold value to sell/buy/trade this rarity
-description: text body for display
-
-SETS:
-name: text name display
-cards: list of CARDS key value identifiers
-sellBonus: sell value multiplier
-*/ 
-
-export const RARITY_VALUES = {
-    common: 15,
-    uncommon: 25,
-    rare: 40,
-    epic: 60,
-    legendary: 90,
-    mythic: 250
-}
-
-/* 
-RARITY_VALUES:
-rarity: value of this rarity
-
-CARDS (merchandise):
-id: CARDS key value identifier
-type: for deck allocation
-name: text name display
-set: SETS key value identifier
 rarity: rarity tier
 description: text body for display
 

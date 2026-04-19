@@ -252,8 +252,24 @@
     let inventoryOpen = false
     let activeTab = 'merchandise'
 
-    const panel = document.getElementById('inventory-panel')
     const invBtn = document.getElementById('inv-trigger')
+
+    invBtn.addEventListener('click', () => {
+        const panel = document.getElementById('inventory-panel')
+        inventoryOpen = !inventoryOpen
+        panel.classList.toggle('open', inventoryOpen)
+        invBtn.classList.toggle('active', inventoryOpen)
+        if (inventoryOpen) renderInventory()
+    })
+
+    document.addEventListener('click', (e) => {
+        const panel = document.getElementById('inventory-panel')
+        if (inventoryOpen && !panel.contains(e.target) && !invBtn.contains(e.target)) {
+            inventoryOpen = false
+            panel.classList.remove('open')
+            invBtn.classList.remove('active')
+        }
+    })
 
     invBtn.addEventListener('click', () => {
       inventoryOpen = !inventoryOpen
@@ -396,15 +412,15 @@
     }
 
     function selectCard(el, card, type) {
-      const container = el.parentElement
-      container.querySelectorAll('.card').forEach(c => c.classList.remove('selected'))
-      el.classList.add('selected')
-      if (type === 'merchandise') {
-        selectedItem = card
-      } else {
-        selectedRelic = card
-      }
-      checkConfirm()
+        const container = el.parentElement
+        container.querySelectorAll('.card').forEach(c => c.classList.remove('selected'))
+        el.classList.add('selected')
+        if (type === 'starter') {
+            selectedItem = card
+        } else {
+            selectedRelic = card
+        }
+        checkConfirm()
     }
 
     function renderAll() {
@@ -412,7 +428,7 @@
       currentRelics = getRandom(allRelics, 3)
       selectedItem = null
       selectedRelic = null
-      renderCards(currentItems, 'starter-cards', 'merchandise')
+      renderCards(currentItems, 'starter-cards', 'starter')
       renderCards(currentRelics, 'relic-cards', 'relic')
       checkConfirm()
     }
@@ -425,7 +441,7 @@
         itemRerolls === 0 ? 'no rerolls remaining' : `${itemRerolls} reroll remaining`
       document.getElementById('item-reroll-btn').disabled = itemRerolls === 0
       currentItems = getRandom(starterItems, 3)
-      renderCards(currentItems, 'starter-cards', 'merchandise')
+      renderCards(currentItems, 'starter-cards', 'starter')
       checkConfirm()
     }
 
