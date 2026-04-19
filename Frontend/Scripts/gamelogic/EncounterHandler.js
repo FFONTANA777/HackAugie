@@ -1,6 +1,8 @@
 import { ENCOUNTERS } from './Encounters.js'
 import { MINIGAMES } from './Minigames.js'
 import { CARDS } from './Cards.js'
+import { RELICS } from './Relics.js'
+import gameObject, { MERCH_BUY_MARKUP } from './GameLogic.js'
 
 // ================
 // Condition Checks
@@ -86,6 +88,81 @@ function applyEffects(effects, gameObject) {
                     candidates: shuffled.slice(0, effect.count),
                     pick: effect.pick
                 }
+                gameObject._notify()
+                break
+            }
+            
+            case "offer_relic": {
+                const pool = Object.values(RELICS).filter(r => !r.cursed)
+                const shuffled = [...pool].sort(() => Math.random() - 0.5)
+                gameObject.gameState.pendingOffer = {
+                    candidates: shuffled.slice(0, effect.count),
+                    pick: effect.pick,
+                    offerType: "relic"
+                }
+                gameObject._notify()
+                break
+            }
+
+            case "offer_merchandise_type": {
+                const pool = Object.values(CARDS).filter(c =>
+                    c.type === "merchandise" && c.category === effect.category
+                )
+                const shuffled = [...pool].sort(() => Math.random() - 0.5)
+                gameObject.gameState.pendingOffer = {
+                    candidates: shuffled.slice(0, effect.count),
+                    pick: effect.pick,
+                    offerType: "merchandise"
+                }
+                gameObject._notify()
+                break
+            }
+
+            case "open_shop_merchandise": {
+                const pool = Object.values(CARDS).filter(c => c.type === "merchandise")
+                const shuffled = [...pool].sort(() => Math.random() - 0.5)
+                gameObject.gameState.pendingShop = {
+                    items: shuffled.slice(0, 4),
+                    currency: "gold",
+                    markup: SHOP_MARKUP
+                }
+                gameObject._notify()
+                break
+            }
+
+            case "open_miner_trade": {
+                const pool = Object.values(CARDS).filter(c => c.type === "merchandise")
+                const shuffled = [...pool].sort(() => Math.random() - 0.5)
+                gameObject.gameState.pendingShop = {
+                    items: shuffled.slice(0, 3),
+                    currency: "food",
+                    markup: 1.0  // food cost uses base rarity value directly
+                }
+                gameObject._notify()
+                break
+            }
+
+            case "gain_curse": {
+                const pool = Object.values(RELICS).filter(r => r.cursed)
+                const random = pool[Math.floor(Math.random() * pool.length)]
+                gameObject.addRelic(random.id)
+                gameObject._notify()
+                break
+            }
+
+            case "gain_curse_forced": {
+                gameObject.addRelic("gambits_debt")
+                gameObject._notify()
+                break
+            }
+
+            case "lift_curse": {
+                const curses = gameObject.player.relic.filter(r => r.cursed)
+                if (curses.length === 0) break
+                // remove the most recently added curse
+                const target = curses[curses.length - 1]
+                gameObject.removeRelic(target.id)
+                gameObject.useConsumable("totem_of_undying")
                 gameObject._notify()
                 break
             }

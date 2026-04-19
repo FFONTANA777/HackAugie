@@ -236,6 +236,11 @@
 
     <!-- Encounter Card -->
     <div class="encounter-card">
+      <div id="enc-offer" style="display:none"></div>
+      <div id="enc-shop" style="display:none"></div>
+      <div id="enc-minigame" style="display:none"></div>
+      <div id="enc-offer" style="display:none"></div>
+      <div id="enc-shop" style="display:none"></div>
       <div class="encounter-type" id="enc-type"></div>
       <div class="encounter-icon" id="enc-icon"></div>
       <div class="encounter-title" id="enc-title"></div>
@@ -253,7 +258,9 @@
   <script type="module">
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
     import { ENCOUNTERS } from '/Frontend/Scripts/gamelogic/Encounters.js'
+    import { RARITY_VALUES } from '/Frontend/Scripts/gamelogic/Cards.js'
     import { handleEncounter } from '/Frontend/Scripts/gamelogic/EncounterHandler.js'
+    import { resolveItemValueComparison } from '/Frontend/Scripts/gamelogic/Minigames.js'
 
     // ============
     // Music
@@ -356,6 +363,12 @@
       }
     }
 
+    gameObject.subscribe(state => {
+      if (state.gameState.pendingMinigame) {
+        renderMinigame(state.gameState.pendingMinigame)
+      }
+    })
+
     gameObject.subscribe(() => { if (inventoryOpen) renderInventory() })
 
     gameObject.subscribe(state => {
@@ -363,6 +376,159 @@
             renderOffer(state.gameState.pendingOffer)
         }
     })
+
+    gameObject.subscribe(state => {
+      if (state.gameState.pendingShop) {
+        renderShop(state.gameState.pendingShop)
+      }
+    })
+
+    function renderMinigame(minigame) {
+      document.getElementById('enc-choices').style.display = 'none'
+      document.getElementById('enc-outcome').style.display = 'none'
+
+      const el = document.getElementById('enc-minigame')
+      el.style.display = 'block'
+
+      if (minigame.phase === "pick") {
+        renderMinigamePick(minigame, el)
+      } else if (minigame.phase === "result") {
+        renderMinigameResult(minigame, el)
+      }
+    }
+
+    function renderMinigamePick(minigame, el) {
+      const merchandise = gameObject.player.merchandise
+      el.innerHTML = `
+        <div class="section-title">WAGER A CARD</div>
+        <div class="encounter-desc">
+          The ${minigame.category} trader wants to compete.
+          Pick a card to wager — highest rarity wins.
+        </div>
+        <div class="cards-row" id="minigame-cards"></div>
+        <button class="confirm-btn" id="minigame-confirm" disabled onclick="confirmWager()">
+          WAGER
+        </button>
+      `
+
+      const container = document.getElementById('minigame-cards')
+      let selectedId = null
+
+      if (merchandise.length === 0) {
+        container.innerHTML = `<div class="inv-empty">No merchandise to wager.</div>`
+        return
+      }
+
+      merchandise.forEach(card => {
+        const div = document.createElement('div')
+        div.className = 'card'
+        div.innerHTML = `
+          <div class="card-name">${card.name}</div>
+          <div class="card-desc">${card.description}</div>
+          <div class="card-value">${card.rarity}</div>
+        `
+        div.addEventListener('click', () => {
+          container.querySelectorAll('.card').forEach(c => c.classList.remove('selected'))
+          div.classList.add('selected')
+          selectedId = card.id
+          document.getElementById('minigame-confirm').disabled = false
+        })
+        container.appendChild(div)
+      })
+
+      window.confirmWager = function () {
+        if (!selectedId) return
+        resolveItemValueComparison(selectedId)
+      }
+  }
+
+  function renderMinigameResult(minigame, el) {
+      const { outcome, traderCard } = minigame
+      el.innerHTML = `
+        <div class="section-title">${outcome.title}</div>
+        <div class="encounter-desc">${outcome.description}</div>
+        <div class="cards-row">
+          <div class="card">
+            <div class="card-name">Trader's Card</div>
+            <div class="card-name">${traderCard.name}</div>
+            <div class="card-value">${traderCard.rarity}</div>
+          </div>
+          ${outcome.reward ? `
+          <div class="card selected">
+            <div class="card-name">Your Reward</div>
+            <div class="card-name">${outcome.reward.name}</div>
+            <div class="card-value">${outcome.reward.rarity}</div>
+          </div>` : ''}
+        </div>
+        <button class="confirm-btn ready" onclick="closeMinigame()">CONTINUE →</button>
+      `
+
+      window.closeMinigame = function () {
+        gameObject.gameState.pendingMinigame = null
+        gameObject.resolveEncounter()
+        gameObject._notify()
+        window.continueJourney()
+      }
+    }
+
+    function renderShop(shop) {
+      const hasCurseInflation = gameObject.player.relic.some(r => r.effect === "curse_inflation")
+      const price = Math.ceil(RARITY_VALUES[card.rarity] * shop.markup * (hasCurseInflation ? 1.25 : 1))
+
+      document.getElementById('enc-choices').style.display = 'none'
+      document.getElementById('enc-outcome').style.display = 'none'
+
+      const shopEl = document.getElementById('enc-shop')
+      shopEl.style.display = 'block'
+      shopEl.innerHTML = `
+        <div class="section-title">ROADSIDE SHOP</div>
+        <div class="cards-row" id="shop-cards"></div>
+        <button class="confirm-btn ready" onclick="closeShop()">LEAVE SHOP</button>
+      `
+
+      const container = document.getElementById('shop-cards')
+
+      shop.items.forEach(card => {
+        const { RARITY_VALUES } = RARITY_VALUES
+        const price = Math.ceil(RARITY_VALUES[card.rarity] * shop.markup)
+        const playerResource = shop.currency === "gold"
+          ? gameObject.player.gold
+          : gameObject.player.food
+        const canAfford = playerResource >= price
+
+        const div = document.createElement('div')
+        div.className = `card ${canAfford ? '' : 'unaffordable'}`
+        div.innerHTML = `
+          <div class="card-name">${card.name}</div>
+          <div class="card-desc">${card.description}</div>
+          <div class="card-value">${price} ${shop.currency === "gold" ? "💰" : "🍞"}</div>
+        `
+
+        if (canAfford) {
+          div.addEventListener('click', () => buyItem(card, price, shop.currency, div))
+        }
+
+        container.appendChild(div)
+      })
+    }
+
+  function buyItem(card, price, currency, div) {
+    if (currency === "gold") {
+      gameObject.spendGold(price)
+    } else {
+      gameObject.spendFood(price)
+    }
+    gameObject.addMerchandise(card.id)
+    div.classList.add('selected')
+    div.style.pointerEvents = 'none'
+  }
+
+  window.closeShop = function () {
+    gameObject.gameState.pendingShop = null
+    gameObject.resolveEncounter()
+    gameObject._notify()
+    window.continueJourney()
+  }
 
     function renderOffer(offer) {
       // hide choices, show offer screen
@@ -402,11 +568,18 @@
       })
 
       window.confirmOffer = function () {
-        selected.forEach(id => gameObject.addMerchandise(id))
-        gameObject.gameState.pendingOffer = null
-        gameObject.resolveEncounter()
-        gameObject._notify()
-        window.continueJourney()
+          const offer = gameObject.gameState.pendingOffer
+          selected.forEach(id => {
+              if (offer.offerType === "relic") {
+                  gameObject.addRelic(id)
+              } else {
+                  gameObject.addMerchandise(id)
+              }
+          })
+          gameObject.gameState.pendingOffer = null
+          gameObject.resolveEncounter()
+          gameObject._notify()
+          window.continueJourney()
       }
     }
 

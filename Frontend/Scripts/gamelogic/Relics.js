@@ -45,6 +45,13 @@ export const RELICS = {
     },
 
     // Curse Relics
+    gambits_debt: {
+        id: "gambits_debt",
+        name: "Gambit's Debt",
+        description: "All gold rewards are halved. All gold losses are doubled.",
+        effect: "curse_gambit",
+        cursed: true
+    },
     bad_omen: {
         id: "bad_omen",
         name: "Bad Omen",

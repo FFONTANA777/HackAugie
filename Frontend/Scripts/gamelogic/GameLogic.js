@@ -52,7 +52,7 @@ const RARITY_WEIGHTS = {
 }
 // Markup on sell value to set merchandise buy price. 1.5x means a rare (45g)
 // buys for 68g before any relic modifiers.
-const MERCH_BUY_MARKUP = 1.5
+export const MERCH_BUY_MARKUP = 1.5
 
 // ==========
 // Game State
@@ -91,6 +91,8 @@ const gameObject = {
             pathOptions: []
         },
         pendingOffer: null,
+        pendingShop: null,
+        pendingMinigame: null,
         loadout: {
             stagedRelic: null,
             relicLocked: false,
@@ -114,13 +116,26 @@ const gameObject = {
     },
 
     // Player mutations
-    spendGold(amount) {
-        this.player.gold -= amount
+    gainGold(amount) {
+        const modified = this._applyGoldModifiers(amount, "gain")
+        this.player.gold += modified
         this._notify()
     },
-    gainGold(amount) {
-        this.player.gold += amount
+    spendGold(amount) {
+        const modified = this._applyGoldModifiers(amount, "spend")
+        this.player.gold -= modified
         this._notify()
+    },
+    _applyGoldModifiers(amount, direction) {
+        let modified = amount
+        for (const relic of this.player.relic) {
+            if (relic.effect === "curse_gambit") {
+                modified = direction === "gain"
+                    ? Math.floor(modified * 0.5)
+                    : Math.ceil(modified * 2)
+            }
+        }
+        return modified
     },
     spendFood(amount) {
         this.player.food -= amount
@@ -304,6 +319,7 @@ const gameObject = {
 
     startLeg(pathOption) {
         this.clearExpiredEffects()
+        this.applyPassiveEffects()
         this.spendFood(pathOption.cost)
 
         this.gameState.phase = "travelling"
@@ -327,6 +343,28 @@ const gameObject = {
         } else {
             this._notify()
         }
+    },
+
+    applyPassiveEffects() {
+        for (const relic of this.player.relic) {
+            switch (relic.effect) {
+                case "curse_gold_drain":
+                    this.spendGold(2)
+                    break
+                case "curse_hunger":
+                    // already handled in calculatePathCost via debuff
+                    // add a permanent debuff if not already present
+                    if (!this.player.debuffs.some(d => d.id === "curse_hunger")) {
+                        this.player.debuffs.push({
+                            id: "curse_hunger",
+                            value: 1,
+                            duration: "permanent"
+                        })
+                    }
+                    break
+            }
+        }
+        this._notify()
     },
 }
 

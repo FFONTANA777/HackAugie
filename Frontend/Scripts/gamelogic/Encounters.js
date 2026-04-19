@@ -527,10 +527,32 @@ export const ENCOUNTERS = {
         bg: "TODO",
         title: "TODO",
         description: "TODO",
-        // TODO: implement item_value_comparison minigame
-        // Win (literature category): gain merch of same set as highest rarity set item in inventory (or setless if N/A)
-        // Win (non-literature): gain random same rarity merch as submitted item
-        // Lose: lose the selected merchandise submitted to compete
+        options: [
+        {
+            label: "Trade merchandise with them.",
+            outcomes: [
+                {
+                    condition: { type: "default" },
+                    result: {
+                        description: "TODO",
+                        effects: [{ type: "open_trade_menu" }] // TODO
+                    }
+                }
+            ]
+        },
+        {
+            label: "Compete in a value comparison.",
+            outcomes: [
+                {
+                    condition: { type: "default" },
+                    result: {
+                        description: "TODO",
+                        effects: [{ type: "start_minigame", minigame: "item_value_comparison", category: "literature" }]
+                    }
+                }
+            ]
+        }
+    ]
     },
 
     // ===========
