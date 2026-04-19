@@ -533,8 +533,44 @@ export function getEventDensity(pathType) {
     return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-export function initGame(selectedRelic, selectedConsumable) {
+export async function initGame(selectedRelic, selectedConsumable) {
     sessionStorage.removeItem('gameState')
+
+    const rawQueue = generateEncounterQueue(pathOption.eventDensity)
+    // Map queue strings to candidate objects with IDs for the conductor
+    const candidates = rawQueue.map((encounterId, i) => ({
+        id: `${encounterId}_${i}`,
+        encounter_id: encounterId,
+        position_hint: i   // original random position — conductor can use or ignore
+    }))
+
+    const res = await fetch("http://localhost:8000/path", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            player: {
+                gold: this.player.gold,
+                food: this.player.food,
+                merchandise: this.player.merchandise,
+                consumables: this.player.consumables,
+                relics: this.player.relic,
+                buffs: this.player.buffs,
+                debuffs: this.player.debuffs,
+                decks: this.player.decks,
+                sell_count: this.player.sellCount,
+                towns_visited: this.player.townsVisited,
+                chosen_set: this.player.chosenSet,
+                decision_history: this.player.decisionHistory
+            },
+            game_state: {
+                legs_remaining: this.gameState.legsRemaining,
+                current_leg: this.gameState.currentLeg
+            },
+            path_type: pathOption.type,
+            candidates: candidates
+        })
+    })
+    const { ranked } = await res.json()
 
     // reset to base state
     gameObject.player.gold = B_GOLD
