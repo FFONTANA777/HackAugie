@@ -6,18 +6,18 @@ import { ENCOUNTERS } from './Encounters.js'
 // =======
 // Configs
 // =======
-const B_GOLD = 10000
-const B_FOOD = 10
+const B_GOLD = 80
+const B_FOOD = 15
 const B_MERCH_DECK = 6
-const B_CONS_DECK = 3
-const B_RELIC_DECK = 3
+const B_CONS_DECK = 2
+const B_RELIC_DECK = 2
 const B_LEGS = 5
 const SAVE_VERSION = 1
 
 const PATH_CONFIGS = {
-    short:  { min: 2, max: 3 },
-    medium: { min: 4, max: 5 },
-    long:   { min: 6, max: 7 }
+    short:  { min: 4, max: 6 },
+    medium: { min: 7, max: 9 },
+    long:   { min: 10, max: 12 }
 }
 
 const FOOD_OFFERS = {
@@ -25,6 +25,34 @@ const FOOD_OFFERS = {
     medium_rations: { id: "medium_rations", name: "Medium Rations", amount: 6,  price: 18 },
     large_rations:  { id: "large_rations",  name: "Large Rations",  amount: 12, price: 32 }
 }
+
+// Wagon upgrade config. DECK_LIMITS defines min/max size per deck.
+// UPGRADE_COSTS is keyed by current size — "when you have X slots, upgrading costs Y".
+// If UPGRADE_COSTS[type][currentSize] is undefined, deck is maxed.
+const DECK_LIMITS = {
+    merchandise: { min: 3, max: 6 },
+    consumables: { min: 2, max: 4 },
+    relics:      { min: 2, max: 4 }
+}
+const UPGRADE_COSTS = {
+    merchandise: { 3: 50, 4: 80, 5: 120 },
+    consumables: { 2: 60, 3: 100 },
+    relics:      { 2: 80, 3: 150 }
+}
+
+// Merchandise appearance weights for shop rolls. Higher = more common.
+// Mythic excluded entirely — mythic cards are find-only (shrines, encounters),
+// never purchasable, to prevent buy-and-hold exploits on cards like Lost Crown.
+const RARITY_WEIGHTS = {
+    common:    10,
+    uncommon:  6,
+    rare:      3,
+    epic:      1,
+    legendary: 1
+}
+// Markup on sell value to set merchandise buy price. 1.5x means a rare (45g)
+// buys for 68g before any relic modifiers.
+const MERCH_BUY_MARKUP = 1.5
 
 // ==========
 // Game State
@@ -172,21 +200,31 @@ const gameObject = {
     // Shop
     buyShopSlot(slotIndex) {
         const slot = this.gameState.currentCheckpoint?.shopInventory?.[slotIndex]
-        if (!slot || slot.sold) return
+        if (!slot) return
         if (this.player.gold < slot.displayPrice) return  // can't afford
 
-        // one purchase per shop visit — bail if anything has been bought here already
-        const anyAlreadySold = this.gameState.currentCheckpoint.shopInventory.some(s => s.sold)
-        if (anyAlreadySold) return
-
+        // FOOD — unlimited buys per visit, never flips to sold
         if (slot.type === "food") {
             this.spendGold(slot.displayPrice)
             this.gainFood(slot.amount)
-        } else if (slot.type === "consumable") {
-            // deck capacity check — UI should gate this too, but guard here as well
+            return
+        }
+
+        // CONSUMABLE or MERCHANDISE — one-per-visit, shared lock
+        if (slot.sold) return
+        const anyNonFoodSold = this.gameState.currentCheckpoint.shopInventory.some(
+            s => s.sold && s.type !== "food"
+        )
+        if (anyNonFoodSold) return
+
+        if (slot.type === "consumable") {
             if (this.player.consumables.length >= this.player.decks.consumables) return
             this.spendGold(slot.displayPrice)
             this.addConsumable(slot.id)
+        } else if (slot.type === "merchandise") {
+            if (this.player.merchandise.length >= this.player.decks.merchandise) return
+            this.spendGold(slot.displayPrice)
+            this.addMerchandise(slot.id)
         }
 
         slot.sold = true
@@ -200,6 +238,23 @@ const gameObject = {
         this.player.merchandise.splice(cardIndex, 1)
         this.player.sellCount += 1
         this.gainGold(value)
+    },
+
+    upgradeWagon(deckType) {
+        const checkpoint = this.gameState.currentCheckpoint
+        if (!checkpoint || checkpoint.upgradeUsed) return
+        if (!DECK_LIMITS[deckType]) return  // unknown deck
+
+        const currentSize = this.player.decks[deckType]
+        if (currentSize >= DECK_LIMITS[deckType].max) return  // already maxed
+
+        const cost = UPGRADE_COSTS[deckType][currentSize]
+        if (cost === undefined) return  // no upgrade defined for this size
+        if (this.player.gold < cost) return  // can't afford
+
+        this.player.decks[deckType] += 1
+        checkpoint.upgradeUsed = true
+        this.spendGold(cost)  // notifies
     },
 
     arriveAtCheckpoint() {
@@ -233,7 +288,8 @@ const gameObject = {
             shopInventory: generateShopInventoryRandom().map(slot => ({
                 ...slot,
                 displayPrice: getBuyPrice(slot.price, this)
-            }))
+            })),
+            upgradeUsed: false
             // shopInventory: await generateShopInventoryEngine(this)  // engine version — needs arriveAtCheckpoint to be async
         }
 
@@ -293,7 +349,7 @@ if (_saved) {
 
 export default gameObject
 
-export { CONSUMABLES, FOOD_OFFERS }
+export { CONSUMABLES, FOOD_OFFERS, CARDS }
 
 export function getBuyPrice(basePrice, gameObject) {
     let price = basePrice
@@ -312,6 +368,16 @@ export function getBuyPrice(basePrice, gameObject) {
     return Math.max(1, price)
 }
 
+// Returns upgrade cost for the given deck's current size, or null if maxed.
+export function getUpgradeCost(deckType, currentSize) {
+    return UPGRADE_COSTS[deckType]?.[currentSize] ?? null
+}
+
+// Returns max size for a deck type (for UI display).
+export function getDeckMax(deckType) {
+    return DECK_LIMITS[deckType]?.max ?? 0
+}
+
 export function generateEncounterQueue(eventDensity) {
     const pool = Object.keys(ENCOUNTERS)
     const queue = []
@@ -327,7 +393,7 @@ export function generateEncounterQueue(eventDensity) {
 export function calculatePathCost(eventDensity, gameObject) {
     const buffs = gameObject.player.buffs.reduce((sum, b) => sum + b.value, 0)
     const debuffs = gameObject.player.debuffs.reduce((sum, d) => sum + d.value, 0)
-    return (2 * eventDensity) + buffs - debuffs
+    return  Math.floor(eventDensity / 2) + buffs - debuffs
 }
 
 export function getEventDensity(pathType) {
@@ -451,33 +517,55 @@ export function getSellValue(card, isFinalSale = false, gameObject = null) {
     return value
 }
 
+// Fixed-shape shop: 1 food (unlimited buy), 1 consumable, 1 merchandise.
+// Merchandise uses RARITY_WEIGHTS to bias toward commons; mythic excluded.
 export function generateShopInventoryRandom() {
     const slots = []
-    const consumableIds = Object.keys(CONSUMABLES)
-    const foodIds = Object.keys(FOOD_OFFERS)
 
-    for (let i = 0; i < 3; i++) {
-        // 30% chance food, 70% consumable
-        if (Math.random() < 0.3) {
-            const food = FOOD_OFFERS[foodIds[Math.floor(Math.random() * foodIds.length)]]
-            slots.push({
-                type: "food",
-                id: food.id,
-                name: food.name,
-                amount: food.amount,
-                price: food.price,
-                sold: false
-            })
-        } else {
-            const cons = CONSUMABLES[consumableIds[Math.floor(Math.random() * consumableIds.length)]]
-            slots.push({
-                type: "consumable",
-                id: cons.id,
-                name: cons.name,
-                price: cons.baseValue,
-                sold: false
-            })
-        }
-    }
+    // Slot 1: food
+    const foodIds = Object.keys(FOOD_OFFERS)
+    const food = FOOD_OFFERS[foodIds[Math.floor(Math.random() * foodIds.length)]]
+    slots.push({
+        type: "food",
+        id: food.id,
+        name: food.name,
+        amount: food.amount,
+        price: food.price,
+        sold: false
+    })
+
+    // Slot 2: consumable
+    const consumableIds = Object.keys(CONSUMABLES)
+    const cons = CONSUMABLES[consumableIds[Math.floor(Math.random() * consumableIds.length)]]
+    slots.push({
+        type: "consumable",
+        id: cons.id,
+        name: cons.name,
+        price: cons.baseValue,
+        sold: false
+    })
+
+    // Slot 3: merchandise (rarity-weighted)
+    const merch = pickWeightedMerchandise()
+    slots.push({
+        type: "merchandise",
+        id: merch.id,
+        name: merch.name,
+        rarity: merch.rarity,
+        price: Math.floor(RARITY_VALUES[merch.rarity] * MERCH_BUY_MARKUP),
+        sold: false
+    })
+
     return slots
+}
+
+function pickWeightedMerchandise() {
+    // Build a flat weighted pool: each card appears N times where N is its rarity weight.
+    const pool = []
+    for (const card of Object.values(CARDS)) {
+        if (card.rarity === "mythic") continue  // mythic is never sold
+        const weight = RARITY_WEIGHTS[card.rarity] ?? 1
+        for (let i = 0; i < weight; i++) pool.push(card)
+    }
+    return pool[Math.floor(Math.random() * pool.length)]
 }

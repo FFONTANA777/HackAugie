@@ -100,12 +100,27 @@ function _removeMerchRandom(effect, gameObject) {
 // ================
 
 function resolveOutcome(option, player) {
-    for (const outcome of option.outcomes) {
-        if (checkCondition(outcome.condition, player)) {
-            return outcome.result
+    // resolve any random_split upfront
+    let splitResult = null
+    const splitCondition = option.outcomes.find(o => o.condition.type === "random_split")
+    if (splitCondition) {
+        const branches = splitCondition.condition.branches
+        const roll = Math.random()
+        let cumulative = 0
+        for (let i = 0; i < branches.length; i++) {
+            cumulative += branches[i]
+            if (roll < cumulative) { splitResult = i; break }
         }
     }
-    // should never reach here if every option has a default outcome
+
+    for (const outcome of option.outcomes) {
+        if (outcome.condition.type === "random_split") {
+            if (outcome.condition.index === splitResult) return outcome.result
+        } else {
+            if (checkCondition(outcome.condition, player)) return outcome.result
+        }
+    }
+
     console.warn("No outcome resolved — check that every option has a default condition.")
     return null
 }

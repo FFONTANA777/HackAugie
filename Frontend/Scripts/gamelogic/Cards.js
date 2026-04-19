@@ -18,11 +18,11 @@ sellBonus: sell value multiplier
 
 export const RARITY_VALUES = {
     common: 15,
-    uncommon: 30,
-    rare: 45,
+    uncommon: 25,
+    rare: 40,
     epic: 60,
-    legendary: 100,
-    mythic: 300
+    legendary: 90,
+    mythic: 250
 }
 
 export const CARDS = {
