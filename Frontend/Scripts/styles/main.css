@@ -96,6 +96,14 @@ body {
   font-weight: bold;
 }
 
+/* HUD icons */
+.hud-icon {
+  height: 32px;
+  width: 32px;
+  vertical-align: middle;
+  object-fit: contain;
+}
+
 /* ============
    Inventory Panel
    ============ */
