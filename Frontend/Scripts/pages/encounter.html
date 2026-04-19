@@ -250,10 +250,6 @@
 
   </div>
 
-  <audio id="bg-music" loop>
-    <source src="/Frontend/public/sounds/medieval-folk-music.mp3" type="audio/mpeg" />
-  </audio>
-
   <script type="module">
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
     import { ENCOUNTERS } from '/Frontend/Scripts/gamelogic/Encounters.js'
@@ -262,8 +258,8 @@
     // ============
     // Music
     // ============
-    const music = document.getElementById('bg-music')
-    document.addEventListener('click', () => music.play(), { once: true })
+    import { initMusic } from '/Frontend/Scripts/components/audioManager.js'
+    initMusic()
 
     // ============
     // HUD

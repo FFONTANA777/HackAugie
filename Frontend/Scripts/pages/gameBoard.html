@@ -239,9 +239,6 @@
 
   </div>
 
-  <audio id="bg-music" loop>
-    <source src="/Frontend/public/sounds/medieval-folk-music.mp3" type="audio/mpeg" />
-  </audio>
 
   <script type="module">
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
@@ -249,6 +246,8 @@
     import { STARTER_ITEMS } from '/Frontend/Scripts/gamelogic/Consumables.js'
     import { RELICS, getNormalRelics } from '/Frontend/Scripts/gamelogic/Relics.js'
     import { initGame } from '/Frontend/Scripts/gamelogic/GameLogic.js'
+    import { initMusic } from '/Frontend/Scripts/components/audioManager.js'
+    initMusic()
     // Inventory
     let inventoryOpen = false
     let activeTab = 'merchandise'
@@ -333,9 +332,6 @@
     if (inventoryOpen) renderInventory()
     })
 
-    // autoplay on first click
-    const music = document.getElementById('bg-music')
-    document.addEventListener('click', () => music.play(), { once: true })
 
     // update HUD
     function updateHUD() {

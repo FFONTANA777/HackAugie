@@ -97,17 +97,12 @@
     </div>
   </div>
 
-  <audio id="bg-music" loop>
-    <source src="/Frontend/public/sounds/medieval-folk-music.mp3" type="audio/mpeg" />
-  </audio>
 
   <script type="module">
     import gameObject from '/Frontend/Scripts/gameLogic/GameLogic.js'
 
-    const music = document.getElementById('bg-music')
-    document.addEventListener('click', () => {
-    music.play()
-    }, { once: true })
+    import { initMusic } from '/Frontend/Scripts/components/audioManager.js'
+    initMusic()
 
     const saved = localStorage.getItem('highscore')
     if (saved) {
@@ -115,7 +110,6 @@
     }
 
     window.startGame = function () {
-    music.pause()
     window.location.href = '/Frontend/Scripts/pages/gameBoard.html'
     }
   </script>

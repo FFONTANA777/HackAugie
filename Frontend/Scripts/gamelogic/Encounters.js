@@ -9,7 +9,7 @@ export const ENCOUNTERS = {
         displayType: "AMBUSH",
         typeClass: "danger",
         icon: "⚔️",
-        bg: "/Frontend/public/backgrounds/bandit.png",
+        bg: "/Frontend/public/background/bandit.png",
         title: "Survival of the Fittest",
         description: "The sound of snapping twigs precedes a cold realization: you aren't alone on the pass. Rough-looking men emerge from the treeline, their eyes lingering greedily on your heavy crates. They don't want your life—just your livelihood.",
         options: [
@@ -75,7 +75,7 @@ export const ENCOUNTERS = {
         displayType: "HAZARD",
         typeClass: "danger",
         icon: "🌊",
-        bg: "/Frontend/public/backgrounds/background_river.png",
+        bg: "/Frontend/public/background/background_river.png",
         title: "The Swollen River",
         description: "The river runs fast and dark, swollen from recent rains. Your horse eyes the crossing nervously. There's no bridge in sight — just churning water and the road on the other side.",
         options: [
