@@ -29,15 +29,16 @@ const FOOD_OFFERS = {
 // Wagon upgrade config. DECK_LIMITS defines min/max size per deck.
 // UPGRADE_COSTS is keyed by current size — "when you have X slots, upgrading costs Y".
 // If UPGRADE_COSTS[type][currentSize] is undefined, deck is maxed.
-const DECK_LIMITS = {
-    merchandise: { min: 3, max: 6 },
-    consumables: { min: 2, max: 4 },
-    relics:      { min: 2, max: 4 }
+export const DECK_MAX = {
+    merchandise: 10,
+    consumables: 6,
+    relics: 5
 }
-const UPGRADE_COSTS = {
-    merchandise: { 3: 50, 4: 80, 5: 120 },
-    consumables: { 2: 60, 3: 100 },
-    relics:      { 2: 80, 3: 150 }
+
+export const UPGRADE_COSTS = {
+    merchandise: [50, 75, 100, 125],
+    consumables: [50, 75, 100],
+    relics: [75, 100]
 }
 
 // Merchandise appearance weights for shop rolls. Higher = more common.
@@ -251,30 +252,28 @@ const gameObject = {
         this._notify()
     },
 
-    sellMerchandise(cardIndex) {
-        const card = this.player.merchandise[cardIndex]
+    sellMerchandise(index) {
+        const card = this.player.merchandise[index]
         if (!card) return
-        const value = getSellValue(card, false, this)
-        this.player.merchandise.splice(cardIndex, 1)
-        this.player.sellCount += 1
-        this.gainGold(value)
+        const value = getSellValue(card, this)
+        this.player.merchandise.splice(index, 1)
+        this.player.gold += value
+        this._notify()
     },
 
     upgradeWagon(deckType) {
-        const checkpoint = this.gameState.currentCheckpoint
-        if (!checkpoint || checkpoint.upgradeUsed) return
-        if (!DECK_LIMITS[deckType]) return  // unknown deck
-
-        const currentSize = this.player.decks[deckType]
-        if (currentSize >= DECK_LIMITS[deckType].max) return  // already maxed
-
-        const cost = UPGRADE_COSTS[deckType][currentSize]
-        if (cost === undefined) return  // no upgrade defined for this size
-        if (this.player.gold < cost) return  // can't afford
-
+        const current = this.player.decks[deckType]
+        const max = DECK_MAX[deckType]
+        const costs = UPGRADE_COSTS[deckType]
+        const costIndex = current - (deckType === 'merchandise' ? 6 : deckType === 'consumables' ? 3 : 3)
+        const cost = costs[costIndex]
+        if (!cost || current >= max || this.player.gold < cost) return
+        this.player.gold -= cost
         this.player.decks[deckType] += 1
-        checkpoint.upgradeUsed = true
-        this.spendGold(cost)  // notifies
+        if (this.gameState.currentCheckpoint) {
+            this.gameState.currentCheckpoint.upgradeUsed = true
+        }
+        this._notify()
     },
 
     arriveAtCheckpoint() {
@@ -372,6 +371,40 @@ const gameObject = {
     },
 }
 
+export function calculateMerchValue(gameObject) {
+    return gameObject.player.merchandise.reduce((total, card) => {
+        const base = RARITY_VALUES[card.rarity] ?? 0
+        const set = card.set ? SETS[card.set] : null
+        const setComplete = set && set.cards.every(id =>
+            gameObject.player.merchandise.some(m => m.id === id)
+        )
+        const bonus = setComplete ? set.sellBonus : 1
+        return total + Math.floor(base * bonus)
+    }, 0)
+}
+
+export function getSellValue(card, gameObject) {
+    const base = RARITY_VALUES[card.rarity] ?? 0
+    if (!card.set) return base
+    const set = SETS[card.set]
+    if (!set || !gameObject?.player?.merchandise) return base
+    const playerCards = gameObject.player.merchandise.map(c => c.id)
+    const setComplete = set.cards.every(id => playerCards.includes(id))
+    const bonus = setComplete ? set.sellBonus : 1
+    return Math.floor(base * bonus)
+}
+
+export function getUpgradeCost(deckType, currentSize) {
+    const costs = UPGRADE_COSTS[deckType]
+    const base = deckType === 'merchandise' ? 6 : 3
+    const index = currentSize - base
+    return costs[index] ?? null
+}
+
+export function getDeckMax(deckType) {
+    return DECK_MAX[deckType]
+}
+
 // rehydrate on load
 const _saved = sessionStorage.getItem('gameState')
 if (_saved) {
@@ -409,16 +442,6 @@ export function getBuyPrice(basePrice, gameObject) {
     }
 
     return Math.max(1, price)
-}
-
-// Returns upgrade cost for the given deck's current size, or null if maxed.
-export function getUpgradeCost(deckType, currentSize) {
-    return UPGRADE_COSTS[deckType]?.[currentSize] ?? null
-}
-
-// Returns max size for a deck type (for UI display).
-export function getDeckMax(deckType) {
-    return DECK_LIMITS[deckType]?.max ?? 0
 }
 
 export function generateEncounterQueue(eventDensity) {
@@ -510,54 +533,6 @@ function hasCompleteSet(cardId, merchandise) {
     return set.cards.every(setCardId =>
         merchandise.some(m => m.id === setCardId)
     )
-}
-
-export function getSellValue(card, isFinalSale = false, gameObject = null) {
-    const rarityKey = isFinalSale ? card.rarity : (card.sellRarity || card.rarity)
-    let value = RARITY_VALUES[rarityKey]
-
-    // Set bonus — only when full set is currently in the deck
-    if (gameObject && card.set && hasCompleteSet(card.id, gameObject.player.merchandise)) {
-        value = Math.floor(value * SETS[card.set].sellBonus)
-    }
-
-    if (!gameObject) return value
-
-    const relics = gameObject.player.relic
-    const consumables = gameObject.player.consumables
-
-    // Specialist's Mark (starter) — multiplier on the base
-    if (gameObject.player.chosenSet) {
-        value = card.set === gameObject.player.chosenSet
-            ? value * 2
-            : Math.floor(value * 0.5)
-    }
-
-    // Doran's Stonks (starter)
-    if (consumables.some(c => c.id === "dorans_stonks")) {
-        value = gameObject.player.townsVisited <= 1
-            ? Math.floor(value * 0.8)
-            : Math.floor(value * 1.5)
-    }
-
-    // Back to Basics (starter)
-    if (consumables.some(c => c.id === "back_to_basics")) {
-        value = Math.floor(value * 1.15)
-    }
-
-    // Merchant's Scales relic
-    if (relics.some(r => r.id === "merchant_scales")) {
-        value += 20
-    }
-
-    // Coin Purse relic — every 3rd sell
-    if (relics.some(r => r.id === "coin_purse")) {
-        if ((gameObject.player.sellCount + 1) % 3 === 0) {
-            value += 5
-        }
-    }
-
-    return value
 }
 
 // Fixed-shape shop: 1 food (unlimited buy), 1 consumable, 1 merchandise.

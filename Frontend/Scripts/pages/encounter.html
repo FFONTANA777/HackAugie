@@ -475,7 +475,7 @@
             <div class="inv-card-icon">${card.icon ?? '📦'}</div>
             <div class="inv-card-name">${card.name}</div>
             <div class="inv-card-desc">${card.description ?? ''}</div>
-            ${card.baseValue ? `<div class="inv-card-value">💰 ${card.baseValue}g</div>` : ''}
+            ${RARITY_VALUES[card.rarity] ? `<div class="inv-card-value">💰 ${RARITY_VALUES[card.rarity]}g</div>` : ''}
           `
         } else {
           div.classList.add('empty')
@@ -493,9 +493,27 @@
     // ============
     gameObject.subscribe(updateHUD)
     gameObject.subscribe(() => { if (inventoryOpen) renderInventory() })
-    gameObject.subscribe(state => { if (state.gameState.pendingOffer)    renderOffer(state.gameState.pendingOffer) })
-    gameObject.subscribe(state => { if (state.gameState.pendingShop)     renderShop(state.gameState.pendingShop) })
-    gameObject.subscribe(state => { if (state.gameState.pendingMinigame) renderMinigame(state.gameState.pendingMinigame) })
+    gameObject.subscribe(state => {
+      if (state.gameState.pendingOffer) {
+          const el = document.getElementById('enc-offer')
+          if (el.style.display === 'block' && el.innerHTML !== '') return
+          renderOffer(state.gameState.pendingOffer)
+      }
+    })
+    gameObject.subscribe(state => {
+      if (state.gameState.pendingShop) {
+          const el = document.getElementById('enc-shop')
+          if (el.style.display === 'block' && el.innerHTML !== '') return
+          renderShop(state.gameState.pendingShop)
+      }
+    })
+    gameObject.subscribe(state => {
+      if (state.gameState.pendingMinigame) {
+          const el = document.getElementById('enc-minigame')
+          if (el.style.display === 'block' && el.innerHTML !== '') return
+          renderMinigame(state.gameState.pendingMinigame)
+      }
+    })
     gameObject.subscribe(state => { if (state.gameState.pendingTrade) renderTrade(state.gameState.pendingTrade) })
 
     // ============
@@ -661,23 +679,24 @@
       }
   
       window.confirmTrade = function () {
-          if (!selectedTraderCard || !selectedPlayerCard) return
-          if (!canAfford(selectedPlayerCard, selectedTraderCard)) return
-  
-          // remove player's item, give trader's item
-          gameObject.removeMerchandise(selectedPlayerCard.id)
-          gameObject.addMerchandise(selectedTraderCard.id)
-  
-          // mark both as traded
-          trade.tradedTraderIds.push(selectedTraderCard.id)
-          trade.tradedPlayerIds.push(selectedPlayerCard.id)
-  
-          // reset selections
-          selectedTraderCard = null
-          selectedPlayerCard = null
-  
-          // re-render
-          render()
+        if (!selectedTraderCard || !selectedPlayerCard) return
+        if (!canAfford(selectedPlayerCard, selectedTraderCard)) return
+
+        // check inventory space before committing
+        if (gameObject.player.merchandise.length >= gameObject.player.decks.merchandise) {
+            document.getElementById('trade-feedback').textContent = 'Inventory full — sell something first.'
+            return
+        }
+
+        gameObject.removeMerchandise(selectedPlayerCard.id)
+        gameObject.addMerchandise(selectedTraderCard.id)
+
+        trade.tradedTraderIds.push(selectedTraderCard.id)
+        trade.tradedPlayerIds.push(selectedPlayerCard.id)
+
+        selectedTraderCard = null
+        selectedPlayerCard = null
+        render()
       }
   
       window.closeTrade = function () {
@@ -831,8 +850,10 @@
     // Minigame Panel
     // ============
     function renderMinigame(minigame) {
+      console.log('renderMinigame called, phase:', minigame.phase)
       showPanel('enc-minigame')
       const el = document.getElementById('enc-minigame')
+      console.log('enc-minigame el:', el)
       if (minigame.phase === 'pick') {
         renderMinigamePick(minigame, el)
       } else if (minigame.phase === 'result') {
@@ -842,6 +863,8 @@
 
     function renderMinigamePick(minigame, el) {
       const merchandise = gameObject.player.merchandise
+      console.log('renderMinigamePick, merchandise:', merchandise)
+      console.log('el.innerHTML before:', el.innerHTML)
 
       // check before rendering anything
       if (merchandise.length === 0) {

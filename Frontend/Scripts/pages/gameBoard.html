@@ -323,20 +323,24 @@
         div.className = `inv-card ${type}`
 
         if (card) {
-        // filled slot
-        div.innerHTML = `
-            <div class="inv-card-icon">${card.icon ?? '📦'}</div>
-            <div class="inv-card-name">${card.name}</div>
-            <div class="inv-card-desc">${card.description ?? ''}</div>
-            ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
-        `
+            const valueDisplay = type === 'merchandise'
+                ? (RARITY_VALUES[card.rarity] ? `<div class="inv-card-value">💰 ${RARITY_VALUES[card.rarity]}g</div>` : '')
+                : type === 'consumable'
+                ? (card.baseValue ? `<div class="inv-card-value">💰 ${card.baseValue}g</div>` : '')
+                : ''
+
+            div.innerHTML = `
+                <div class="inv-card-icon">${card.icon ?? '📦'}</div>
+                <div class="inv-card-name">${card.name}</div>
+                <div class="inv-card-desc">${card.description ?? ''}</div>
+                ${valueDisplay}
+            `
         } else {
-        // empty slot
-        div.classList.add('empty')
-        div.innerHTML = `
-            <div class="inv-card-icon">+</div>
-            <div class="inv-card-name">Empty Slot</div>
-        `
+            div.classList.add('empty')
+            div.innerHTML = `
+                <div class="inv-card-icon">+</div>
+                <div class="inv-card-name">Empty Slot</div>
+            `
         }
 
         grid.appendChild(div)
@@ -404,7 +408,9 @@
           <div class="card-icon">${card.icon ?? '�'}</div>
           <div class="card-name">${card.name}</div>
           <div class="card-desc">${card.description ?? ''}</div>
-          ${card.value ? `<div class="card-value">💰 ${card.value}g</div>` : ''}
+          ${type === 'starter' 
+            ? (card.baseValue ? `<div class="card-value">💰 ${card.baseValue}g</div>` : '')
+            : ''}
         `
         div.addEventListener('click', () => selectCard(div, card, type))
         container.appendChild(div)

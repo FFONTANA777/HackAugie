@@ -67,13 +67,8 @@
       transition: border-color 0.2s;
     }
 
-    .hud-right:hover {
-      border-color: #6b4f2a;
-    }
-
-    .hud-right.active {
-      border-color: #c8963c;
-    }
+    .hud-right:hover  { border-color: #6b4f2a; }
+    .hud-right.active { border-color: #c8963c; }
 
     .inv-label {
       font-size: 10px;
@@ -128,8 +123,8 @@
       transition: color 0.2s;
     }
 
-    .cp-tab:hover    { color: #a88c5a; }
-    .cp-tab.active   { color: #f0e6c8; border-bottom: 2px solid #c8963c; }
+    .cp-tab:hover  { color: #a88c5a; }
+    .cp-tab.active { color: #f0e6c8; border-bottom: 2px solid #c8963c; }
 
     /* ============
        Tab Panels
@@ -166,8 +161,8 @@
       position: relative;
     }
 
-    .route-card:hover          { border-color: #c8963c; transform: translateY(-4px); }
-    .route-card.selected       { border-color: #e0aa50; background: rgba(40, 28, 8, 0.95); }
+    .route-card:hover           { border-color: #c8963c; transform: translateY(-4px); }
+    .route-card.selected        { border-color: #e0aa50; background: rgba(40, 28, 8, 0.95); }
     .route-card.selected::after {
       content: '✓';
       position: absolute;
@@ -175,11 +170,11 @@
       color: #e0aa50;
       font-size: 12px;
     }
+    .route-card.unaffordable    { opacity: 0.4; cursor: not-allowed; }
 
-    .route-icon   { font-size: 36px; margin-bottom: 12px; }
-    .route-name   { font-size: 14px; color: #f0e6c8; margin-bottom: 12px; }
-
-    .route-stats  { font-size: 10px; color: #a88c5a; line-height: 2; text-align: left; }
+    .route-icon  { font-size: 36px; margin-bottom: 12px; }
+    .route-name  { font-size: 14px; color: #f0e6c8; margin-bottom: 12px; }
+    .route-stats { font-size: 10px; color: #a88c5a; line-height: 2; text-align: left; }
     .route-stats span { color: #c8963c; }
 
     .route-risk {
@@ -203,9 +198,7 @@
     /* ============
        Shop
        ============ */
-    .shop-section {
-      margin-bottom: 32px;
-    }
+    .shop-section { margin-bottom: 32px; }
 
     .shop-section-title {
       font-size: 10px;
@@ -253,7 +246,7 @@
     }
 
     .buy-btn:hover:not(:disabled) { border-color: #c8963c; color: #c8963c; }
-    .buy-btn:disabled              { opacity: 0.3; cursor: not-allowed; }
+    .buy-btn:disabled             { opacity: 0.3; cursor: not-allowed; }
 
     .sell-btn {
       background: transparent;
@@ -262,14 +255,10 @@
     }
 
     .sell-btn:hover:not(:disabled) { border-color: #c8963c; color: #c8963c; }
-    .sell-btn:disabled              { opacity: 0.3; cursor: not-allowed; }
+    .sell-btn:disabled             { opacity: 0.3; cursor: not-allowed; }
 
     /* Sell merchandise list */
-    .merch-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .merch-list { display: flex; flex-direction: column; gap: 10px; }
 
     .merch-row {
       display: flex;
@@ -291,7 +280,7 @@
       padding: 20px 0;
     }
 
-    /* Shared button */
+    /* Buttons */
     .cp-btn {
       padding: 12px 40px;
       font-family: 'Silkscreen', serif;
@@ -305,21 +294,8 @@
       pointer-events: none;
     }
 
-    .cp-btn.ready            { opacity: 1; pointer-events: all; }
-    .cp-btn.ready:hover      { background-color: #e0aa50; transform: scale(1.03); }
-
-    .cp-btn-plain {
-      padding: 10px 32px;
-      font-family: 'Silkscreen', serif;
-      font-size: 11px;
-      color: #f0e6c8;
-      background: transparent;
-      border: 1px solid #6b4f2a;
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-    }
-
-    .cp-btn-plain:hover { border-color: #c8963c; color: #c8963c; }
+    .cp-btn.ready       { opacity: 1; pointer-events: all; }
+    .cp-btn.ready:hover { background-color: #e0aa50; transform: scale(1.03); }
 
     .feedback {
       font-size: 10px;
@@ -393,31 +369,27 @@
       <div class="shop-section">
         <div class="shop-section-title">PROVISIONS</div>
         <div class="shop-grid">
-
           <div class="shop-item">
             <div class="shop-item-icon">🍞</div>
             <div class="shop-item-name">Bread Loaf</div>
             <div class="shop-item-desc">Restores 5 food</div>
             <div class="shop-item-price">💰 15g</div>
-            <button class="buy-btn" onclick="buyItem('food', 5, 15, this)">BUY</button>
+            <button class="buy-btn" onclick="buyFood(5, 15, this)">BUY</button>
           </div>
-
           <div class="shop-item">
             <div class="shop-item-icon">🥩</div>
             <div class="shop-item-name">Salted Meat</div>
             <div class="shop-item-desc">Restores 12 food</div>
             <div class="shop-item-price">💰 30g</div>
-            <button class="buy-btn" onclick="buyItem('food', 12, 30, this)">BUY</button>
+            <button class="buy-btn" onclick="buyFood(12, 30, this)">BUY</button>
           </div>
-
           <div class="shop-item">
             <div class="shop-item-icon">🧺</div>
             <div class="shop-item-name">Supply Crate</div>
             <div class="shop-item-desc">Restores 25 food</div>
             <div class="shop-item-price">💰 55g</div>
-            <button class="buy-btn" onclick="buyItem('food', 25, 55, this)">BUY</button>
+            <button class="buy-btn" onclick="buyFood(25, 55, this)">BUY</button>
           </div>
-
         </div>
       </div>
 
@@ -445,16 +417,24 @@
 
   </div>
 
-
-
   <script type="module">
-    import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
-    import { getSellValue, getUpgradeCost, getDeckMax, CONSUMABLES, CARDS } from '/Frontend/Scripts/gamelogic/GameLogic.js'
+
+    // ============
+    // Imports
+    // ============
+    import gameObject, {
+        getSellValue,
+        getUpgradeCost,
+        getDeckMax,
+        MERCH_BUY_MARKUP
+    } from '/Frontend/Scripts/gamelogic/GameLogic.js'
+    import { CONSUMABLES } from '/Frontend/Scripts/gamelogic/Consumables.js'
+    import { CARDS, RARITY_VALUES } from '/Frontend/Scripts/gamelogic/Cards.js'
+    import { initMusic } from '/Frontend/Scripts/components/audioManager.js'
 
     // ============
     // Music
     // ============
-    import { initMusic } from '/Frontend/Scripts/components/audioManager.js'
     initMusic()
 
     // ============
@@ -470,8 +450,6 @@
       document.getElementById('hud-relics').textContent     = gameObject.player.relic.length
       document.getElementById('hud-relics-max').textContent = gameObject.player.decks.relics
     }
-    gameObject.subscribe(updateHUD)
-    updateHUD()
 
     // ============
     // Inventory
@@ -509,7 +487,7 @@
       const tabMap = {
         merchandise: { items: gameObject.player.merchandise, type: 'merchandise' },
         consumables: { items: gameObject.player.consumables, type: 'consumable'  },
-        relics:      { items: gameObject.player.relic,        type: 'relic'       },
+        relics:      { items: gameObject.player.relic,       type: 'relic'       },
       }
       const { items, type } = tabMap[activeInvTab]
       if (items.length === 0) {
@@ -518,18 +496,32 @@
       }
       items.forEach(card => {
         const div = document.createElement('div')
+        const valueDisplay = type === 'merchandise'
+          ? (RARITY_VALUES[card.rarity] ? `<div class="inv-card-value">💰 ${RARITY_VALUES[card.rarity]}g</div>` : '')
+          : type === 'consumable'
+          ? (card.baseValue ? `<div class="inv-card-value">💰 ${card.baseValue}g</div>` : '')
+          : ''  // relics show no price
         div.className = `inv-card ${type}`
         div.innerHTML = `
           <div class="inv-card-icon">${card.icon ?? '📦'}</div>
           <div class="inv-card-name">${card.name}</div>
           <div class="inv-card-desc">${card.description ?? ''}</div>
-          ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
+          ${valueDisplay}
         `
         grid.appendChild(div)
       })
     }
 
+    // ============
+    // Subscriptions
+    // ============
+    gameObject.subscribe(updateHUD)
     gameObject.subscribe(() => { if (inventoryOpen) renderInventory() })
+    gameObject.subscribe(() => {
+      renderMerchSell()
+      renderShopConsumables()
+      renderUpgrades()
+    })
 
     // ============
     // Checkpoint Tabs
@@ -544,159 +536,108 @@
     // ============
     // Fork / Routes
     // ============
-    const ROUTES = [
-      {
-        id: 'short',
-        icon: '🌿',
-        name: 'SHORT PATH',
-        events: 2,
-        days: 3,
-        foodCost: 6,
-        riskClass: 'risk-low',
-        riskLabel: 'LOW RISK',
-      },
-      {
-        id: 'medium',
-        icon: '🌲',
-        name: 'MEDIUM PATH',
-        events: 4,
-        days: 6,
-        foodCost: 12,
-        riskClass: 'risk-medium',
-        riskLabel: 'MEDIUM RISK',
-      },
-      {
-        id: 'long',
-        icon: '⛰️',
-        name: 'LONG PATH',
-        events: 7,
-        days: 10,
-        foodCost: 20,
-        riskClass: 'risk-high',
-        riskLabel: 'HIGH RISK',
-      },
-    ]
+    const ROUTE_META = {
+      short:  { icon: '🌿', riskClass: 'risk-low',    riskLabel: 'LOW RISK'    },
+      medium: { icon: '🌲', riskClass: 'risk-medium',  riskLabel: 'MEDIUM RISK' },
+      long:   { icon: '⛰️', riskClass: 'risk-high',   riskLabel: 'HIGH RISK'   },
+    }
 
     let selectedRoute = null
 
     function renderRoutes() {
       const container = document.getElementById('routes-container')
       container.innerHTML = ''
-      ROUTES.forEach(route => {
+
+      const pathOptions = gameObject.gameState.currentCheckpoint?.pathOptions
+      if (!pathOptions || pathOptions.length === 0) {
+        container.innerHTML = `<div class="merch-empty">no paths available</div>`
+        return
+      }
+
+      pathOptions.forEach(option => {
+        const meta = ROUTE_META[option.type] ?? { icon: '🛤', riskClass: 'risk-medium', riskLabel: 'UNKNOWN' }
+        const canAfford = gameObject.player.food >= option.cost
         const div = document.createElement('div')
-        div.className = 'route-card'
+        div.className = `route-card ${canAfford ? '' : 'unaffordable'}`
         div.innerHTML = `
-          <div class="route-icon">${route.icon}</div>
-          <div class="route-name">${route.name}</div>
+          <div class="route-icon">${meta.icon}</div>
+          <div class="route-name">${option.type.toUpperCase()} PATH</div>
           <div class="route-stats">
-            <div>EVENTS &nbsp;<span>${route.events}</span></div>
-            <div>DAYS &nbsp;&nbsp;&nbsp;<span>${route.days}</span></div>
-            <div>FOOD &nbsp;&nbsp;&nbsp;<span>-${route.foodCost}</span></div>
+            <div>EVENTS &nbsp;<span>${option.eventDensity}</span></div>
+            <div>FOOD &nbsp;&nbsp;&nbsp;<span>-${option.cost}</span></div>
           </div>
-          <div class="route-risk ${route.riskClass}">${route.riskLabel}</div>
+          <div class="route-risk ${meta.riskClass}">${meta.riskLabel}</div>
         `
-        div.addEventListener('click', () => selectRoute(div, route))
+        if (canAfford) {
+          div.addEventListener('click', () => selectRoute(div, option))
+        }
         container.appendChild(div)
       })
     }
 
-    function selectRoute(el, route) {
+    function selectRoute(el, option) {
       document.querySelectorAll('.route-card').forEach(c => c.classList.remove('selected'))
       el.classList.add('selected')
-      selectedRoute = route
+      selectedRoute = option
       document.getElementById('depart-btn').classList.add('ready')
       document.getElementById('fork-feedback').textContent = ''
     }
 
     window.departOnRoute = function () {
       if (!selectedRoute) return
-      gameObject.update({
-        gameState: {
-          ...gameObject.gameState,
-          phase: 'travelling',
-          currentLeg: {
-            daysToNextTown: selectedRoute.days,
-            eventQueue: Array(selectedRoute.events).fill('encounter'),
-          }
-        }
-      })
-      gameObject.spendFood(selectedRoute.foodCost)
-      window.location.href = '/Frontend/Pages/encounter.html'
+      gameObject.startLeg(selectedRoute)
+      window.location.href = '/Frontend/Scripts/pages/encounter.html'
     }
 
     // ============
     // Shop — Buy Food
     // ============
-    window.buyItem = function (stat, amount, cost, btn) {
+    window.buyFood = function (amount, cost, btn) {
       if (gameObject.player.gold < cost) {
         showFeedback('not enough gold!', true)
         return
       }
       gameObject.spendGold(cost)
-      if (stat === 'food') gameObject.gainFood(amount)
-      showFeedback(`+${amount} ${stat} purchased`)
+      gameObject.gainFood(amount)
+      showFeedback(`+${amount} food purchased`)
     }
 
-      // New rule: food is unlimited. One consumable OR one merchandise per visit.
-      // Lock only applies to non-food slots.
-      const nonFoodLocked = shopInventory.some(s => s.sold && s.type !== 'food')
+    // ============
+    // Shop — Consumables (hardcoded pool for now, Conductor later)
+    // ============
+    const SHOP_CONSUMABLE_POOL = [
+      "sword", "axe", "rope", "torch", "healing_kit",
+      "repel", "recon", "fishing_net", "pickaxe", "oil_flask"
+    ]
 
-      shopInventory.forEach((slot, index) => {
-        const canAfford = gameObject.player.gold >= slot.displayPrice
+    function renderShopConsumables() {
+      const grid = document.getElementById('consumable-shop')
+      grid.innerHTML = ''
+      const deckFull = gameObject.player.consumables.length >= gameObject.player.decks.consumables
 
-        // deck-full only applies to cards (consumable, merchandise)
-        let deckFull = false
-        if (slot.type === 'consumable') {
-          deckFull = gameObject.player.consumables.length >= gameObject.player.decks.consumables
-        } else if (slot.type === 'merchandise') {
-          deckFull = gameObject.player.merchandise.length >= gameObject.player.decks.merchandise
-        }
-
-        let icon, name, desc
-        if (slot.type === 'food') {
-          icon = FOOD_ICONS[slot.id] ?? '🍞'
-          name = slot.name
-          desc = `Restores ${slot.amount} food`
-        } else if (slot.type === 'consumable') {
-          const cons = CONSUMABLES[slot.id]
-          icon = cons?.icon ?? '🧪'
-          name = slot.name
-          desc = cons?.description ?? ''
-        } else {  // merchandise
-          const card = CARDS[slot.id]
-          icon = card?.icon ?? '📦'
-          name = `${slot.name} (${slot.rarity})`
-          desc = card?.description ?? ''
-        }
-      })    
-
-        let btnLabel = 'BUY'
-        let disabled = false
-        if (slot.type === 'food') {
-          // food: never sold/locked, only affordability matters
-          if (!canAfford) disabled = true
-        } else {
-          if (slot.sold)              { btnLabel = 'SOLD';   disabled = true }
-          else if (nonFoodLocked)     { btnLabel = 'CLOSED'; disabled = true }
-          else if (deckFull)          { btnLabel = 'FULL';   disabled = true }
-          else if (!canAfford)        { disabled = true }
-        }
+      SHOP_CONSUMABLE_POOL.slice(0, 3).forEach(id => {
+        const item = CONSUMABLES[id]
+        if (!item) return
+        const price = Math.ceil((item.baseValue ?? 30) * MERCH_BUY_MARKUP)
+        const canAfford = gameObject.player.gold >= price
 
         const div = document.createElement('div')
         div.className = 'shop-item'
         div.innerHTML = `
-          <div class="shop-item-icon">${item.icon}</div>
+          <div class="shop-item-icon">${item.icon ?? '🧪'}</div>
           <div class="shop-item-name">${item.name}</div>
-          <div class="shop-item-desc">${item.desc}</div>
-          <div class="shop-item-price"><img src="/Frontend/public/sprites/money.png" class="hud-icon" alt="Gold"> ${item.price}g</div>
-          <button class="buy-btn" ${isFull || !canAfford ? 'disabled' : ''}
-            onclick="buyConsumable('${item.id}', '${item.name}', ${item.price}, this)">
-            ${isFull ? 'FULL' : 'BUY'}
+          <div class="shop-item-desc">${item.description ?? ''}</div>
+          <div class="shop-item-price">💰 ${price}g</div>
+          <button class="buy-btn" ${deckFull || !canAfford ? 'disabled' : ''}
+            onclick="buyConsumable('${id}', '${item.name}', ${price})">
+            ${deckFull ? 'FULL' : 'BUY'}
           </button>
         `
         grid.appendChild(div)
+      })
+    }
 
-    window.buyConsumable = function (id, name, price, btn) {
+    window.buyConsumable = function (id, name, price) {
       if (gameObject.player.gold < price) { showFeedback('not enough gold!', true); return }
       if (gameObject.player.consumables.length >= gameObject.player.decks.consumables) {
         showFeedback('consumable deck is full!', true); return
@@ -711,15 +652,14 @@
     // Shop — Wagon Upgrades
     // ============
     const UPGRADE_CARDS = [
-      { deckType: 'merchandise', icon: '📦', name: 'Cargo Rack',  flavor: 'merchandise slot'  },
-      { deckType: 'consumables', icon: '🎒', name: 'Saddlebag',   flavor: 'consumable slot' },
-      { deckType: 'relics',      icon: '💎', name: 'Relic Case',  flavor: 'relic slot'      }
+      { deckType: 'merchandise', icon: '📦', name: 'Cargo Rack', flavor: 'merchandise slot' },
+      { deckType: 'consumables', icon: '🎒', name: 'Saddlebag',  flavor: 'consumable slot'  },
+      { deckType: 'relics',      icon: '💎', name: 'Relic Case', flavor: 'relic slot'       }
     ]
 
     function renderUpgrades() {
       const grid = document.getElementById('wagon-upgrades')
       grid.innerHTML = ''
-
       const upgradeUsed = gameObject.gameState.currentCheckpoint?.upgradeUsed ?? false
 
       UPGRADE_CARDS.forEach(card => {
@@ -731,13 +671,11 @@
 
         let btnLabel = 'BUY'
         let disabled = false
-        if (maxed)            { btnLabel = 'MAXED';    disabled = true }
-        else if (upgradeUsed) { btnLabel = 'USED';     disabled = true }
-        else if (!canAfford)  { btnLabel = 'BUY';      disabled = true }
+        if (maxed)            { btnLabel = 'MAXED';  disabled = true }
+        else if (upgradeUsed) { btnLabel = 'USED';   disabled = true }
+        else if (!canAfford)  { disabled = true }
 
-        const priceDisplay = maxed
-          ? '—'
-          : `<img src="/Frontend/public/sprites/money.png" class="hud-icon" alt="Gold"> ${cost}g`
+        const priceDisplay = maxed ? '—' : `💰 ${cost}g`
 
         const div = document.createElement('div')
         div.className = 'shop-item'
@@ -756,17 +694,13 @@
     }
 
     window.buyUpgrade = function (deckType, name) {
-      const goldBefore = gameObject.player.gold
       gameObject.upgradeWagon(deckType)
-      if (gameObject.player.gold === goldBefore) {
-        showFeedback('upgrade failed', true)
-      } else {
-        showFeedback(`${name} upgraded!`)
-      }
+      showFeedback(`${name} upgraded!`)
+      renderUpgrades()
     }
 
     // ============
-    // Shop — Sell Merchandise (from GameLogic)
+    // Shop — Sell Merchandise
     // ============
     function renderMerchSell() {
       const list = document.getElementById('merch-sell-list')
@@ -778,24 +712,24 @@
       }
 
       gameObject.player.merchandise.forEach((card, index) => {
-        const sellValue = getSellValue(card, false, gameObject)
+        const sellValue = getSellValue(card, gameObject)
         const row = document.createElement('div')
         row.className = 'merch-row'
         row.innerHTML = `
           <div>
             <div class="merch-row-info">${card.icon ?? '📦'} ${card.name}</div>
-            <div class="merch-row-sub">${card.description ?? ''}</div>
+            <div class="merch-row-sub">${card.rarity}${card.set ? ' · ' + card.set : ''}</div>
           </div>
           <div style="display:flex;align-items:center">
-            <div class="merch-row-val"><img src="/Frontend/public/sprites/money.png" class="hud-icon" alt="Gold"> ${sellValue}g</div>
-            <button class="sell-btn" onclick="sellMerch(${index}, ${sellValue}, this)">SELL</button>
+            <div class="merch-row-val">💰 ${sellValue}g</div>
+            <button class="sell-btn" onclick="sellMerch(${index}, ${sellValue})">SELL</button>
           </div>
         `
         list.appendChild(row)
       })
     }
 
-    window.sellMerch = function (index, value, btn) {
+    window.sellMerch = function (index, value) {
       gameObject.sellMerchandise(index)
       showFeedback(`sold for ${value}g!`)
       renderMerchSell()
@@ -812,20 +746,11 @@
     }
 
     // ============
-    // Subscribe & Re-render Shop on State Change
-    // ============
-    gameObject.subscribe(() => {
-      renderMerchSell()
-      renderShop()
-      renderUpgrades()
-    })
-
-    // ============
     // Init
     // ============
-    loadShopConsumables()
+    updateHUD()
     renderRoutes()
-    renderShop()
+    renderShopConsumables()
     renderUpgrades()
     renderMerchSell()
 

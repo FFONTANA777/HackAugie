@@ -178,6 +178,7 @@ function applyEffects(effects, gameObject, encounterId) {
                     ...encounter,
                     minigameConfig: { category: effect.category }
                 }, gameObject)
+                console.log('pendingMinigame after init:', gameObject.gameState.pendingMinigame)
                 break
             }
 
@@ -277,7 +278,6 @@ function handleEncounter(encounterId, optionIndex, gameObject) {
     // decision encounters
     if (encounter.type === "decision") {
         const option = encounter.options[optionIndex]
-
         if (!option) {
             console.error(`Option index ${optionIndex} not found on encounter: ${encounterId}`)
             return null
@@ -288,9 +288,18 @@ function handleEncounter(encounterId, optionIndex, gameObject) {
 
         applyEffects(result.effects, gameObject, encounterId)
         gameObject.logDecision(option.label)
-        gameObject.resolveEncounter()
 
-        return result // return so UI can display outcome description
+        // only resolve encounter if no pending panel was opened
+        const hasPending = gameObject.gameState.pendingOffer
+            || gameObject.gameState.pendingShop
+            || gameObject.gameState.pendingMinigame
+            || gameObject.gameState.pendingTrade
+
+        if (!hasPending) {
+            gameObject.resolveEncounter()
+        }
+
+        return result
     }
 
     console.error(`Unknown encounter type: ${encounter.type}`)
