@@ -283,4 +283,3 @@ class Conductor:
         }
     
 # conductor = Conductor(scorer=scorer)
-# scorer = LLMScorer(api_key=api_key, model="gemini-2.0-flash")

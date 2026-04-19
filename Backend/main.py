@@ -5,15 +5,18 @@ FastAPI server exposing two Conductor instances:
   - /path      → event queue / leg composition
 """
 
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Any
 import json
-
+from dotenv import load_dotenv
 from conductor import Conductor, LLMScorer
 from reward_conductor import build_reward_conductor
 from path_conductor import build_path_conductor
+
+load_dotenv()
 
 app = FastAPI(title="Conductor Engine", version="1.0.0")
 
@@ -29,7 +32,7 @@ app.add_middleware(
 # ========================
 # Both share a scorer. Swap LLMScorer for MLScorer here in stage 2/3.
 # scorer = LLMScorer(api_key="YOUR_KEY_HERE")
-scorer = None  # replace with LLMScorer(api_key=...) — see README
+scorer = LLMScorer(os.environ["GEMINI_API_KEY"], model="gemini-2.0-flash")
 
 reward_conductor = build_reward_conductor(scorer)
 path_conductor   = build_path_conductor(scorer)
