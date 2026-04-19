@@ -18,6 +18,12 @@ from conductor import Conductor
 DEFAULT_REWARD_INTENT = """
 I want every shop visit to feel like a real decision — not noise.
 
+CRITICAL EARLY-GAME RULE: 
+If the player's inventory (merchandise) is empty or near-empty, prioritize 
+surfacing free or very low-cost merchandise. Empty inventories limit player 
+agency; the goal is to provide them with a foundational set of options as 
+quickly as possible.
+
 Half the offers should reinforce what the player is already building toward:
 if they're chasing a set, surface cards that complete it; if their consumable
 slots are empty, surface items that patch that gap; if they're flush with gold,
