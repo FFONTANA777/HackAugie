@@ -92,7 +92,7 @@
     }
 
     .encounter-type {
-      font-size: 10px;
+      font-size: 12px;
       letter-spacing: 4px;
       color: #6b4f2a;
       margin-bottom: 12px;
@@ -113,7 +113,7 @@
     }
 
     .encounter-desc {
-      font-size: 11px;
+      font-size: 15px;
       color: #a88c5a;
       line-height: 1.9;
       margin-bottom: 32px;
@@ -132,7 +132,7 @@
       width: 100%;
       padding: 14px 20px;
       font-family: 'Silkscreen', serif;
-      font-size: 11px;
+      font-size: 13px;
       color: #f0e6c8;
       background: rgba(20, 14, 6, 0.8);
       border: 1px solid #6b4f2a;
@@ -312,29 +312,52 @@
     }
 
     function renderInventory() {
-      const grid = document.getElementById('inv-grid')
-      grid.innerHTML = ''
-      const tabMap = {
-        merchandise: { items: gameObject.player.merchandise, type: 'merchandise' },
-        consumables: { items: gameObject.player.consumables, type: 'consumable'  },
-        relics:      { items: gameObject.player.relic,        type: 'relic'       },
-      }
-      const { items, type } = tabMap[activeTab]
-      if (items.length === 0) {
-        grid.innerHTML = `<div class="inv-empty">nothing here yet</div>`
-        return
-      }
-      items.forEach(card => {
+    const grid = document.getElementById('inv-grid')
+    grid.innerHTML = ''
+
+    let items = []
+    let type = ''
+    let maxSlots = 0
+
+    if (activeTab === 'merchandise') {
+        items = gameObject.player.merchandise
+        type = 'merchandise'
+        maxSlots = gameObject.player.decks.merchandise
+    } else if (activeTab === 'consumables') {
+        items = gameObject.player.consumables
+        type = 'consumable'
+        maxSlots = gameObject.player.decks.consumables
+    } else {
+        items = gameObject.player.relic
+        type = 'relic'
+        maxSlots = gameObject.player.decks.relics
+    }
+
+    for (let i = 0; i < maxSlots; i++) {
+        const card = items[i]
+
         const div = document.createElement('div')
         div.className = `inv-card ${type}`
+
+        if (card) {
+        // filled slot
         div.innerHTML = `
-          <div class="inv-card-icon">${card.icon ?? '📦'}</div>
-          <div class="inv-card-name">${card.name}</div>
-          <div class="inv-card-desc">${card.description ?? ''}</div>
-          ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
+            <div class="inv-card-icon">${card.icon ?? '📦'}</div>
+            <div class="inv-card-name">${card.name}</div>
+            <div class="inv-card-desc">${card.description ?? ''}</div>
+            ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
         `
+        } else {
+        // empty slot
+        div.classList.add('empty')
+        div.innerHTML = `
+            <div class="inv-card-icon">+</div>
+            <div class="inv-card-name">Empty Slot</div>
+        `
+        }
+
         grid.appendChild(div)
-      })
+    }
     }
 
     gameObject.subscribe(() => { if (inventoryOpen) renderInventory() })

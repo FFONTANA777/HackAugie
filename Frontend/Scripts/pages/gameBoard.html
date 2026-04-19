@@ -57,7 +57,7 @@
 
     /* Section titles */
     .section-title {
-      font-size: 13px;
+      font-size: 15px;
       color: #a88c5a;
       letter-spacing: 3px;
       margin: 32px 0 16px;
@@ -65,7 +65,7 @@
     }
 
     .reroll-info {
-      font-size: 11px;
+      font-size: 13px;
       color: #6b4f2a;
       margin-top: -10px;
       margin-bottom: 16px;
@@ -107,29 +107,29 @@
       top: 6px;
       right: 10px;
       color: #e0aa50;
-      font-size: 12px;
+      font-size: 14px;
     }
 
     .card-icon {
-      font-size: 28px;
+      font-size: 30px;
       margin-bottom: 8px;
     }
 
     .card-name {
-      font-size: 12px;
+      font-size: 14px;
       color: #f0e6c8;
       margin-bottom: 6px;
     }
 
     .card-desc {
-      font-size: 10px;
+      font-size: 12px;
       color: #a88c5a;
       line-height: 1.5;
     }
 
     .card-value {
       margin-top: 10px;
-      font-size: 11px;
+      font-size: 13px;
       color: #c8963c;
     }
 
@@ -156,7 +156,7 @@
       margin-top: 20px;
       padding: 10px 28px;
       font-family: 'Silkscreen', serif;
-      font-size: 12px;
+      font-size: 14px;
       color: #f0e6c8;
       background: transparent;
       border: 1px solid #6b4f2a;
@@ -179,7 +179,7 @@
       margin-top: 36px;
       padding: 14px 48px;
       font-family: 'Silkscreen', serif;
-      font-size: 16px;
+      font-size: 18px;
       color: #1a1209;
       background-color: #c8963c;
       border: none;
@@ -247,7 +247,7 @@
     import gameObject from '/Frontend/Scripts/gamelogic/GameLogic.js'
     import { CARDS } from '/Frontend/Scripts/gamelogic/Cards.js'
     import { STARTER_ITEMS } from '/Frontend/Scripts/gamelogic/Consumables.js'
-    import { RELICS } from '/Frontend/Scripts/gamelogic/Relics.js'
+    import { RELICS, getNormalRelics } from '/Frontend/Scripts/gamelogic/Relics.js'
     import { initGame } from '/Frontend/Scripts/gamelogic/GameLogic.js'
     // Inventory
     let inventoryOpen = false
@@ -285,34 +285,47 @@
 
     let items = []
     let type = ''
+    let maxSlots = 0
 
     if (activeTab === 'merchandise') {
         items = gameObject.player.merchandise
         type = 'merchandise'
+        maxSlots = gameObject.player.decks.merchandise
     } else if (activeTab === 'consumables') {
         items = gameObject.player.consumables
         type = 'consumable'
+        maxSlots = gameObject.player.decks.consumables
     } else {
         items = gameObject.player.relic
         type = 'relic'
+        maxSlots = gameObject.player.decks.relics
     }
 
-    if (items.length === 0) {
-        grid.innerHTML = `<div class="inv-empty">nothing here yet</div>`
-        return
-    }
+    for (let i = 0; i < maxSlots; i++) {
+        const card = items[i]
 
-    items.forEach(card => {
         const div = document.createElement('div')
         div.className = `inv-card ${type}`
+
+        if (card) {
+        // filled slot
         div.innerHTML = `
-        <div class="inv-card-icon">${card.icon ?? '📦'}</div>
-        <div class="inv-card-name">${card.name}</div>
-        <div class="inv-card-desc">${card.description ?? ''}</div>
-        ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
+            <div class="inv-card-icon">${card.icon ?? '📦'}</div>
+            <div class="inv-card-name">${card.name}</div>
+            <div class="inv-card-desc">${card.description ?? ''}</div>
+            ${card.value ? `<div class="inv-card-value">💰 ${card.value}g</div>` : ''}
         `
+        } else {
+        // empty slot
+        div.classList.add('empty')
+        div.innerHTML = `
+            <div class="inv-card-icon">+</div>
+            <div class="inv-card-name">Empty Slot</div>
+        `
+        }
+
         grid.appendChild(div)
-    })
+    }
     }
 
     // re-render inventory if open when state changes
@@ -344,7 +357,7 @@
     const merchCards = allCards.filter(c => c.type === 'merchandise')
     const relicCards = allCards.filter(c => c.type === 'relic')
     const starterItems = Object.values(STARTER_ITEMS)
-    const allRelics = Object.values(RELICS)
+    const allRelics = getNormalRelics().map(id => RELICS[id])
 
     // reroll state
     let itemRerolls = 1
