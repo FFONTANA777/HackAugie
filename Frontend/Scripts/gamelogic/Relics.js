@@ -21,6 +21,13 @@ export const RELICS = {
     },
 
     // Curse Relics
+    cracked_mirror: {
+        id: "cracked_mirror",
+        name: "Cracked Mirror",
+        description: "All shop prices increased by 25%.",
+        effect: "curse_inflation",
+        cursed: true
+    },
     leaking_purse: {
         id: "leaking_purse",
         name: "Leaking Purse",
